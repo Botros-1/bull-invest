@@ -160,6 +160,7 @@
   .gbadge{display:inline-block;margin-top:8px;font-size:10.5px;padding:2px 9px;border-radius:6px;font-weight:700}
   .gbadge.ok{background:var(--accent-weak);color:var(--accent-ink)}
   .gbadge.bad{background:rgba(201,42,42,.13);color:var(--down)}
+  .lvl{display:inline-block;margin-top:8px;margin-inline-start:6px;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:6px;background:var(--line-2);color:var(--ink-2)}
   .ins-row{display:flex;gap:26px;flex-wrap:wrap;margin-top:8px;align-items:center}
   .ins{text-align:center}
   .ins b{font-size:20px;font-weight:800;display:block}
@@ -307,7 +308,7 @@
       <div class="who" id="footName">Signed in</div>
       <div class="sec"><span class="dot" aria-hidden="true"></span> <span data-i18n="shell.secfoot">Bank-grade security · AES-256</span></div>
       <button class="signout" onclick="signOut()" data-i18n="shell.signout">Sign out</button>
-      <div class="ver">Build v2.0 · streak ring + levels</div>
+      <div class="ver">Build v2.1 · goal levels</div>
     </div>
   </aside>
 
@@ -383,9 +384,9 @@
       </div>
 
       <div class="grid c3 mt">
-        <div class="card cat"><div class="ctitle" data-i18n="goal.retirement">Retirement goal</div><div class="stat num">$331,600 <span style="font-size:13px;color:var(--muted);font-weight:500">/ $1.2M</span></div><div class="progress"><i style="width:28%"></i></div><small>28% · age 60</small><br><span class="gbadge ok" data-i18n="goal.ontrack">On track</span></div>
-        <div class="card cat"><div class="ctitle" data-i18n="goal.emergency">Emergency fund</div><div class="stat num">$18,000 <span style="font-size:13px;color:var(--muted);font-weight:500">/ $24,000</span></div><div class="progress"><i style="width:75%"></i></div><small>75% · 4.5 mo</small><br><span class="gbadge ok" data-i18n="goal.ontrack">On track</span></div>
-        <div class="card cat"><div class="ctitle" data-i18n="goal.mortgage">Mortgage payoff</div><div class="stat num">$268,000</div><div class="progress"><i style="width:38%;background:var(--down)"></i></div><small>38% · 19 yrs @ 5.1%</small><br><span class="gbadge bad" data-i18n="goal.behind">Behind</span></div>
+        <div class="card cat"><div class="ctitle" data-i18n="goal.retirement">Retirement goal</div><div class="stat num">$331,600 <span style="font-size:13px;color:var(--muted);font-weight:500">/ $1.2M</span></div><div class="progress"><i style="width:28%"></i></div><small>28% · age 60</small><br><span class="gbadge ok" data-i18n="goal.ontrack">On track</span><span class="lvl"><span data-i18n="ins.level">Level</span> 2</span></div>
+        <div class="card cat"><div class="ctitle" data-i18n="goal.emergency">Emergency fund</div><div class="stat num">$18,000 <span style="font-size:13px;color:var(--muted);font-weight:500">/ $24,000</span></div><div class="progress"><i style="width:75%"></i></div><small>75% · 4.5 mo</small><br><span class="gbadge ok" data-i18n="goal.ontrack">On track</span><span class="lvl"><span data-i18n="ins.level">Level</span> 4</span></div>
+        <div class="card cat"><div class="ctitle" data-i18n="goal.mortgage">Mortgage payoff</div><div class="stat num">$268,000</div><div class="progress"><i style="width:38%;background:var(--down)"></i></div><small>38% · 19 yrs @ 5.1%</small><br><span class="gbadge bad" data-i18n="goal.behind">Behind</span><span class="lvl"><span data-i18n="ins.level">Level</span> 2</span></div>
       </div>
     </section>
 
@@ -424,10 +425,10 @@
       </div>
       <div class="section-title"><h3 data-i18n="cat.goalscats">Goals &amp; categories</h3></div>
       <div class="grid c4">
-        <div class="card cat"><div class="ctitle" data-i18n="dash.retirement">Retirement</div><div class="stat num">$331,600</div><div class="progress"><i style="width:28%"></i></div><small>Fidelity 401k + Schwab IRA</small></div>
-        <div class="card cat"><div class="ctitle" data-i18n="cat.savings">Savings</div><div class="stat num">$42,180</div><div class="progress"><i style="width:75%"></i></div><small>2 high-yield · 4.3% APY</small></div>
-        <div class="card cat"><div class="ctitle" data-i18n="cat.investing">Investing</div><div class="stat num">$198,340</div><div class="progress"><i style="width:64%"></i></div><small>Brokerage · +12.4% YTD</small></div>
-        <div class="card cat"><div class="ctitle" data-i18n="cat.loans">Loans / Mortgage</div><div class="stat num down">−$284,200</div><div class="progress"><i style="width:38%;background:var(--down)"></i></div><small>Mortgage + auto loan</small></div>
+        <div class="card cat"><div class="ctitle" data-i18n="dash.retirement">Retirement</div><div class="stat num">$331,600</div><div class="progress"><i style="width:28%"></i></div><small>Fidelity 401k + Schwab IRA</small><br><span class="lvl"><span data-i18n="ins.level">Level</span> 2</span></div>
+        <div class="card cat"><div class="ctitle" data-i18n="cat.savings">Savings</div><div class="stat num">$42,180</div><div class="progress"><i style="width:75%"></i></div><small>2 high-yield · 4.3% APY</small><br><span class="lvl"><span data-i18n="ins.level">Level</span> 4</span></div>
+        <div class="card cat"><div class="ctitle" data-i18n="cat.investing">Investing</div><div class="stat num">$198,340</div><div class="progress"><i style="width:64%"></i></div><small>Brokerage · +12.4% YTD</small><br><span class="lvl"><span data-i18n="ins.level">Level</span> 4</span></div>
+        <div class="card cat"><div class="ctitle" data-i18n="cat.loans">Loans / Mortgage</div><div class="stat num down">−$284,200</div><div class="progress"><i style="width:38%;background:var(--down)"></i></div><small>Mortgage + auto loan</small><br><span class="lvl"><span data-i18n="ins.level">Level</span> 2</span></div>
       </div>
       <div class="section-title"><h3 data-i18n="spend.title">Spending this month</h3></div>
       <div class="card"><div id="spendList"></div></div>
