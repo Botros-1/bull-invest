@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bull Invest — QR Code Maker</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{--bg:#f4f6f8;--card:#fff;--ink:#0c1116;--muted:#5b6675;--line:#e0e4ea;--accent:#0ca15a;--accent-ink:#077a43;--weak:#e8f6ee}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,system-ui,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:grid;place-items:center;padding:24px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 2px 10px rgba(12,17,22,.06);width:100%;max-width:440px;padding:30px;text-align:center}
+  .mk{width:52px;height:52px;border-radius:15px;background:var(--accent);display:grid;place-items:center;font-size:28px;margin:0 auto 14px}
+  h1{font-size:21px;font-weight:800;letter-spacing:-.3px}
+  p.tag{color:var(--muted);font-size:13.5px;margin:4px 0 20px}
+  label{display:block;text-align:start;font-size:12.5px;font-weight:600;margin-bottom:6px}
+  input{width:100%;border:1px solid var(--line);border-radius:11px;padding:12px 13px;font-size:14.5px;color:var(--ink);background:#fbfcfd}
+  input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--weak);background:#fff}
+  .btn{width:100%;margin-top:14px;border:0;border-radius:11px;background:var(--accent);color:#fff;font-weight:700;font-size:14.5px;padding:13px;cursor:pointer}
+  .btn:hover{background:var(--accent-ink)}
+  .btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn.sec:hover{background:#f0f3f6}
+  #qrwrap{margin:22px auto 4px;display:none;justify-content:center}
+  #qr{display:inline-block;padding:16px;background:#fff;border:1px solid var(--line);border-radius:16px}
+  .err{color:#c92a2a;font-size:12.5px;margin-top:10px;min-height:16px}
+  .hint{color:var(--muted);font-size:11.5px;margin-top:14px;line-height:1.5}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="mk" aria-hidden="true">🐂</div>
+    <h1>QR Code Maker</h1>
+    <p class="tag">Your Bull Invest link — generate a scannable QR code.</p>
+    <label for="url">App link (URL)</label>
+    <input id="url" type="url" inputmode="url" placeholder="https://botros-1.github.io/bull-invest/" value="https://botros-1.github.io/bull-invest/">
+    <button class="btn" onclick="gen()">Generate QR code</button>
+    <div id="qrwrap"><div id="qr"></div></div>
+    <div class="err" id="err"></div>
+    <button class="btn sec" id="dl" style="display:none" onclick="download()">⬇ Download PNG</button>
+    <p class="hint">Print it or share the image — anyone can scan it with their phone camera to open the app, then "Add to Home Screen" to install it.</p>
+  </div>
+<script>
+  let qr=null;
+  function gen(){
+    const url=(document.getElementById("url").value||"").trim();
+    const err=document.getElementById("err");
+    if(!/^https?:\/\/.+/i.test(url)){err.textContent="Please enter a full link starting with https://";return;}
+    err.textContent="";
+    document.getElementById("qr").innerHTML="";
+    qr=new QRCode(document.getElementById("qr"),{text:url,width:260,height:260,colorDark:"#0c1116",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
+    document.getElementById("qrwrap").style.display="flex";
+    document.getElementById("dl").style.display="block";
+  }
+  function download(){
+    const cv=document.querySelector("#qr canvas");
+    const img=document.querySelector("#qr img");
+    let data = cv ? cv.toDataURL("image/png") : (img ? img.src : null);
+    if(!data)return;
+    const a=document.createElement("a");a.href=data;a.download="bull-invest-qr.png";a.click();
+  }
+  document.getElementById("url").addEventListener("keydown",e=>{if(e.key==="Enter")gen();});
+  gen();
+</script>
+</body>
+</html>

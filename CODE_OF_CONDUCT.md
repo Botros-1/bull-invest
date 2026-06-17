@@ -45,8 +45,9 @@ an individual is officially representing the community in public spaces.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the project maintainer at **botrosmaged@yahoo.com**. All complaints
-will be reviewed and investigated promptly and fairly.
+reported to the project maintainer by opening an issue in this repository, or
+through the maintainer's GitHub profile ([@Botros-1](https://github.com/Botros-1)).
+All complaints will be reviewed and investigated promptly and fairly.
 
 ## Attribution
 
