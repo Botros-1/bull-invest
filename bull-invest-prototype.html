@@ -157,6 +157,14 @@
   .progress{height:6px;border-radius:99px;background:var(--line);margin-top:12px;overflow:hidden}
   .progress i{display:block;height:100%;border-radius:99px;background:var(--accent)}
   .cat small{color:var(--muted);font-size:11.5px}
+  .gbadge{display:inline-block;margin-top:8px;font-size:10.5px;padding:2px 9px;border-radius:6px;font-weight:700}
+  .gbadge.ok{background:var(--accent-weak);color:var(--accent-ink)}
+  .gbadge.bad{background:rgba(201,42,42,.13);color:var(--down)}
+  .ins-row{display:flex;gap:26px;flex-wrap:wrap;margin-top:8px}
+  .ins b{font-size:20px;font-weight:800;display:block}
+  .ins small{color:var(--muted);font-size:12px}
+  .spend-row{margin-bottom:13px}
+  .spend-row .top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px}
 
   .feature{display:flex;gap:13px;align-items:flex-start;padding:16px;border-radius:12px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)}
   .feature .fic{width:40px;height:40px;border-radius:10px;background:var(--accent-weak);display:grid;place-items:center;flex-shrink:0;color:var(--accent)}
@@ -294,7 +302,7 @@
       <div class="who" id="footName">Signed in</div>
       <div class="sec"><span class="dot" aria-hidden="true"></span> <span data-i18n="shell.secfoot">Bank-grade security · AES-256</span></div>
       <button class="signout" onclick="signOut()" data-i18n="shell.signout">Sign out</button>
-      <div class="ver">Build v1.8 · no-cache + GitHub</div>
+      <div class="ver">Build v1.9 · insights + budget</div>
     </div>
   </aside>
 
@@ -342,6 +350,15 @@
         <div class="card"><div class="label" data-i18n="dash.debts">Debts &amp; Loans</div><div class="stat num down">−$284,200</div><div class="delta up">↓ <span data-i18n="dash.paid">paid</span> $1,960</div></div>
       </div>
 
+      <div class="card mt insights">
+        <div class="label" data-i18n="ins.title">Insights</div>
+        <div class="ins-row">
+          <div class="ins"><b class="num up">+$1,100</b><small data-i18n="ins.saved">Saved this month</small></div>
+          <div class="ins"><b class="num">6&nbsp;🔥</b><small data-i18n="ins.streak">Savings streak</small></div>
+          <div class="ins"><b class="num">2&nbsp;/&nbsp;3</b><small data-i18n="ins.ontrack">Goals on track</small></div>
+        </div>
+      </div>
+
       <div class="grid c2 mt">
         <div class="card">
           <div class="section-title" style="margin:0 0 6px"><h3 data-i18n="dash.linked">Linked accounts</h3><a onclick="go('accounts')" data-i18n="dash.viewall">View all →</a></div>
@@ -354,9 +371,9 @@
       </div>
 
       <div class="grid c3 mt">
-        <div class="card cat"><div class="ctitle" data-i18n="goal.retirement">Retirement goal</div><div class="stat num">$331,600 <span style="font-size:13px;color:var(--muted);font-weight:500">/ $1.2M</span></div><div class="progress"><i style="width:28%"></i></div><small>28% · age 60</small></div>
-        <div class="card cat"><div class="ctitle" data-i18n="goal.emergency">Emergency fund</div><div class="stat num">$18,000 <span style="font-size:13px;color:var(--muted);font-weight:500">/ $24,000</span></div><div class="progress"><i style="width:75%"></i></div><small>75% · 4.5 mo</small></div>
-        <div class="card cat"><div class="ctitle" data-i18n="goal.mortgage">Mortgage payoff</div><div class="stat num">$268,000</div><div class="progress"><i style="width:38%;background:var(--down)"></i></div><small>38% · 19 yrs @ 5.1%</small></div>
+        <div class="card cat"><div class="ctitle" data-i18n="goal.retirement">Retirement goal</div><div class="stat num">$331,600 <span style="font-size:13px;color:var(--muted);font-weight:500">/ $1.2M</span></div><div class="progress"><i style="width:28%"></i></div><small>28% · age 60</small><br><span class="gbadge ok" data-i18n="goal.ontrack">On track</span></div>
+        <div class="card cat"><div class="ctitle" data-i18n="goal.emergency">Emergency fund</div><div class="stat num">$18,000 <span style="font-size:13px;color:var(--muted);font-weight:500">/ $24,000</span></div><div class="progress"><i style="width:75%"></i></div><small>75% · 4.5 mo</small><br><span class="gbadge ok" data-i18n="goal.ontrack">On track</span></div>
+        <div class="card cat"><div class="ctitle" data-i18n="goal.mortgage">Mortgage payoff</div><div class="stat num">$268,000</div><div class="progress"><i style="width:38%;background:var(--down)"></i></div><small>38% · 19 yrs @ 5.1%</small><br><span class="gbadge bad" data-i18n="goal.behind">Behind</span></div>
       </div>
     </section>
 
@@ -400,6 +417,8 @@
         <div class="card cat"><div class="ctitle" data-i18n="cat.investing">Investing</div><div class="stat num">$198,340</div><div class="progress"><i style="width:64%"></i></div><small>Brokerage · +12.4% YTD</small></div>
         <div class="card cat"><div class="ctitle" data-i18n="cat.loans">Loans / Mortgage</div><div class="stat num down">−$284,200</div><div class="progress"><i style="width:38%;background:var(--down)"></i></div><small>Mortgage + auto loan</small></div>
       </div>
+      <div class="section-title"><h3 data-i18n="spend.title">Spending this month</h3></div>
+      <div class="card"><div id="spendList"></div></div>
     </section>
 
     <!-- CALCULATORS -->
@@ -581,6 +600,14 @@ const T={
  "goal.retirement":{en:"Retirement goal",es:"Meta de jubilación",fr:"Objectif retraite",ar:"هدف التقاعد",pt:"Meta de aposentadoria",tl:"Layunin sa pagreretiro"},
  "goal.emergency":{en:"Emergency fund",es:"Fondo de emergencia",fr:"Fonds d'urgence",ar:"صندوق الطوارئ",pt:"Fundo de emergência",tl:"Pondo para emergency"},
  "goal.mortgage":{en:"Mortgage payoff",es:"Pago de hipoteca",fr:"Remboursement hypothécaire",ar:"سداد الرهن العقاري",pt:"Quitação da hipoteca",tl:"Pagbabayad ng mortgage"},
+ "goal.ontrack":{en:"On track",es:"En camino",fr:"En bonne voie",ar:"على المسار",pt:"No caminho",tl:"Nasa tamang landas"},
+ "goal.behind":{en:"Behind",es:"Atrasado",fr:"En retard",ar:"متأخر",pt:"Atrasado",tl:"Nahuhuli"},
+ "ins.title":{en:"Insights",es:"Resumen",fr:"Aperçus",ar:"رؤى",pt:"Resumo",tl:"Mga Insight"},
+ "ins.saved":{en:"Saved this month",es:"Ahorrado este mes",fr:"Épargné ce mois-ci",ar:"المدّخر هذا الشهر",pt:"Poupado este mês",tl:"Naipon ngayong buwan"},
+ "ins.streak":{en:"Savings streak",es:"Racha de ahorro",fr:"Série d'épargne",ar:"سلسلة الادخار",pt:"Sequência de poupança",tl:"Sunod-sunod na ipon"},
+ "ins.ontrack":{en:"Goals on track",es:"Metas en camino",fr:"Objectifs en bonne voie",ar:"أهداف على المسار",pt:"Metas no caminho",tl:"Mga layuning nasa landas"},
+ "spend.title":{en:"Spending this month",es:"Gastos este mes",fr:"Dépenses ce mois-ci",ar:"الإنفاق هذا الشهر",pt:"Gastos este mês",tl:"Gastos ngayong buwan"},
+ "spend.budget":{en:"of budget",es:"del presupuesto",fr:"du budget",ar:"من الميزانية",pt:"do orçamento",tl:"ng badyet"},
  "chip.all":{en:"All",es:"Todas",fr:"Toutes",ar:"الكل",pt:"Todas",tl:"Lahat"},
  "chip.checking":{en:"Checking",es:"Corriente",fr:"Courant",ar:"جاري",pt:"Corrente",tl:"Checking"},
  "chip.savings":{en:"Savings",es:"Ahorros",fr:"Épargne",ar:"التوفير",pt:"Poupança",tl:"Ipon"},
@@ -760,6 +787,21 @@ function renderVids(){document.getElementById("vidGrid").innerHTML=videos.map((v
       <span class="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>
       <span class="src">${v.src}</span></span>
     <span class="meta"><b>${v.t}</b><small>${v.d}</small></span></button>`).join("");}
+function renderSpending(){
+  const el=document.getElementById("spendList"); if(!el)return;
+  const budgets={Groceries:600,Dining:250,Utilities:250,Cash:400};
+  const order=["Groceries","Dining","Utilities","Cash"];
+  const spent={};
+  txns.forEach(t=>{ if(budgets[t.t]&&t.a<0) spent[t.t]=(spent[t.t]||0)+(-t.a); });
+  el.innerHTML=order.map(c=>{
+    const s=spent[c]||0, b=budgets[c], pct=Math.min(100,Math.round(s/b*100)), over=s>b;
+    return `<div class="spend-row">
+      <div class="top"><span>${c}</span>
+        <span class="num">${fmt2(s)} <span class="muted">/ ${fmt(b)} ${tr('spend.budget')}</span></span></div>
+      <div class="progress"><i style="width:${pct}%;background:${over?'var(--down)':'var(--accent)'}"></i></div>
+    </div>`;
+  }).join("");
+}
 
 /* ===================== CALCULATORS ===================== */
 function row(label,val){return `<div class="res-row"><span>${label}</span><b>${val}</b></div>`}
@@ -830,7 +872,7 @@ function setLang(l){
   const a=document.getElementById("ob-lang"),b=document.getElementById("top-lang");if(a)a.value=l;if(b)b.value=l;
   if(USER!=="there")document.getElementById("footName").textContent=tr('shell.signedinas')+" "+USER;
   const af=document.querySelector('#acctChips .chip[aria-pressed="true"]');
-  renderAccts("acctList");renderAccts("acctFull",af?af.dataset.f:"all");renderTxTable();refreshCalcs();
+  renderAccts("acctList");renderAccts("acctFull",af?af.dataset.f:"all");renderTxTable();renderSpending();refreshCalcs();
   const cur=document.querySelector('.nav button[aria-current="page"]');if(cur)setTitles(cur.dataset.page);
   savePrefs();
 }
@@ -911,7 +953,7 @@ function buildCharts(){
 (function(){const o=document.getElementById("ob-lang"),t=document.getElementById("top-lang");
   LANGS.forEach(([code,name])=>{o.add(new Option(name,code));t.add(new Option(name,code));});
   o.value="en";t.value="en";o.onchange=()=>setLang(o.value);t.onchange=()=>setLang(t.value);})();
-renderAccts("acctList");renderAccts("acctFull","all");renderTxMini();renderTxTable();renderVids();
+renderAccts("acctList");renderAccts("acctFull","all");renderTxMini();renderTxTable();renderVids();renderSpending();
 refreshCalcs();loadPrefs();
 document.getElementById("ob-name").focus();
 /* Demo: actively remove any old service worker + caches so updates ALWAYS load (no stale builds) */
