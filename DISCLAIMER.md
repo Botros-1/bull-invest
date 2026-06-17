@@ -21,4 +21,4 @@ illustrative and educational purposes only.
   Bull Invest does not own or endorse it.
 
 Use of this software is provided "as is" under the terms of the
-[MIT License](LICENSE), without warranty of any kind.
+[LICENSE](LICENSE) — all rights reserved — without warranty of any kind.

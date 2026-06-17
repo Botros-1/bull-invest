@@ -19,6 +19,6 @@ keywords:
   - dashboard
   - accessibility
   - PWA
-license: MIT
+license-url: "LICENSE"
 date-released: "2026-06-17"
 version: "1.8.0"

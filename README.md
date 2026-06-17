@@ -5,7 +5,7 @@
 **All your money. One app.**
 
 [![Live Demo](https://img.shields.io/badge/live%20demo-online-0ca15a)](https://botros-1.github.io/bull-invest/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-0ca15a.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-All%20rights%20reserved-c92a2a.svg)](LICENSE)
 [![CI](https://github.com/Botros-1/bull-invest/actions/workflows/ci.yml/badge.svg)](https://github.com/Botros-1/bull-invest/actions)
 [![PWA](https://img.shields.io/badge/PWA-installable-0ca15a)](manifest.webmanifest)
 [![Languages](https://img.shields.io/badge/languages-6%20(incl.%20RTL)-2563eb)](#-features)
@@ -111,4 +111,6 @@ If you reference this project, please cite it (see [`CITATION.cff`](CITATION.cff
 
 ## 📄 License
 
-[MIT](LICENSE) © 2026 Botros Saleb
+© 2026 Botros Saleb. **All rights reserved.** This is proprietary source —
+viewing is allowed, but copying, modifying, distributing, or commercial use
+requires written permission. See [LICENSE](LICENSE).

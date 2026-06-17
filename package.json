@@ -6,7 +6,7 @@
   "contributors": [
     "Angel Gallegos (idea & feedback)"
   ],
-  "license": "MIT",
+  "license": "UNLICENSED",
   "private": true,
   "scripts": {
     "test": "node tests/finance.test.js && node tests/contrast.test.js && node tests/i18n.test.js",
