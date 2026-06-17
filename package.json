@@ -1,0 +1,16 @@
+{
+  "name": "bull-invest",
+  "version": "1.8.0",
+  "description": "Bull Invest — all your money, one app. A multi-bank personal-finance dashboard demo.",
+  "author": "Botros Saleb",
+  "contributors": [
+    "Angel Gallegos (idea & feedback)"
+  ],
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "test": "node tests/finance.test.js && node tests/contrast.test.js && node tests/i18n.test.js",
+    "start": "npx serve ."
+  },
+  "keywords": ["fintech", "personal-finance", "dashboard", "pwa", "accessibility"]
+}

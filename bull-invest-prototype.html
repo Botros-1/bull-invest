@@ -294,7 +294,7 @@
       <div class="who" id="footName">Signed in</div>
       <div class="sec"><span class="dot" aria-hidden="true"></span> <span data-i18n="shell.secfoot">Bank-grade security · AES-256</span></div>
       <button class="signout" onclick="signOut()" data-i18n="shell.signout">Sign out</button>
-      <div class="ver">Build v1.7 · RTL + rotation</div>
+      <div class="ver">Build v1.8 · no-cache + GitHub</div>
     </div>
   </aside>
 
@@ -914,8 +914,11 @@ function buildCharts(){
 renderAccts("acctList");renderAccts("acctFull","all");renderTxMini();renderTxTable();renderVids();
 refreshCalcs();loadPrefs();
 document.getElementById("ob-name").focus();
-/* PWA: register service worker (works once hosted over https) */
-if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{});});}
+/* Demo: actively remove any old service worker + caches so updates ALWAYS load (no stale builds) */
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});
+}
+if(window.caches&&caches.keys){caches.keys().then(ks=>ks.forEach(k=>caches.delete(k))).catch(()=>{});}
 </script>
 </body>
 </html>

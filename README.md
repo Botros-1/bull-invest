@@ -1,90 +1,110 @@
+<div align="center">
+
 # 🐂 Bull Invest
 
-**All your money. One app.** A modern personal‑finance super‑app concept — a single, secure dashboard that brings together every account a person holds (checking, savings, investing, retirement, loans) across every bank, plus zero‑fee ATM access, built‑in financial calculators, and a how‑to video library.
+**All your money. One app.**
 
-> ⚠️ **This is a front‑end demo / prototype with sample data.** It is not a real bank and does not move real money. See [Disclaimer](#disclaimer).
+[![License: MIT](https://img.shields.io/badge/License-MIT-0ca15a.svg)](LICENSE)
+[![CI](https://github.com/YOUR-USERNAME/bull-invest/actions/workflows/ci.yml/badge.svg)](../../actions)
+[![PWA](https://img.shields.io/badge/PWA-installable-0ca15a)](manifest.webmanifest)
+[![Languages](https://img.shields.io/badge/languages-6%20(incl.%20RTL)-2563eb)](#-features)
+[![Accessibility](https://img.shields.io/badge/a11y-WCAG%20AA-0ca15a)](#-testing)
+[![Made with](https://img.shields.io/badge/made%20with-HTML%20%C2%B7%20CSS%20%C2%B7%20JS-f0b429)](#-tech)
+
+A modern personal-finance super-app concept — one secure dashboard for every account a person holds (checking, savings, investing, retirement, loans) across every bank, plus zero-fee ATM access, built-in financial calculators, and a how-to video library.
+
+</div>
+
+> ⚠️ **This is a front-end demo / prototype with sample data.** It is not a real bank and does not move real money. See the [Disclaimer](#-disclaimer).
 
 ---
 
 ## ✨ Features
 
-- **One dashboard, every bank** — aggregated view of accounts from Chase, Wells Fargo, Schwab, Fidelity and more (like Empower / Monarch).
-- **Smart categories** — retirement (401k/IRA), savings, investing, and a loan/mortgage payoff tracker, each with goals and progress.
-- **Zero ATM fees** — automatic worldwide surcharge reimbursement, modeled on what Schwab & Fidelity offer today.
-- **Calculators you can run yourself** — investment growth, loan/mortgage, retirement, and savings‑goal tools, **plus a custom tab where you can write your own formula**. Every formula is unit‑tested against textbook values.
-- **6 languages** — English, Español, Français, العربية (full right‑to‑left), Português, Tagalog.
-- **Accessibility** — WCAG‑AA color contrast (light & dark), screen‑reader landmarks/ARIA, full keyboard navigation, larger‑text and high‑contrast modes, reduced‑motion support.
+- **One dashboard, every bank** — aggregated view of accounts from Chase, Wells Fargo, Schwab, Fidelity and more.
+- **Smart categories** — retirement (401k/IRA), savings, investing, and a loan/mortgage payoff tracker with goals.
+- **Zero ATM fees** — automatic worldwide surcharge reimbursement, modeled on Schwab & Fidelity.
+- **Calculators you can run yourself** — investment growth, loan/mortgage, retirement, savings-goal, **plus a "code-it" custom tab**. Every formula is unit-tested.
+- **6 languages** — English, Español, Français, العربية (full right-to-left), Português, Tagalog.
+- **Accessibility** — WCAG-AA contrast (light & dark), screen-reader landmarks/ARIA, keyboard navigation, larger-text & high-contrast modes, reduced-motion support.
 - **Dark mode** + light mode, remembered between visits.
-- **Installable (PWA)** — works offline and can be added to a phone home screen.
+- **Installable** on iPhone/Android home screen.
 
-## 🚀 Run it locally
+## 👤 Credits
+
+- **Built, developed, and tested by [Botros Saleb](mailto:botrosmaged@yahoo.com)** — sole builder, A to Z.
+- **Original idea & ongoing feedback by Angel Gallegos.**
+
+## 🚀 Run locally
 
 It's a static site — no build step.
 
 ```bash
-# just open the file in a browser
-open bull-invest-prototype.html        # macOS
-start bull-invest-prototype.html       # Windows
-```
-
-Or serve the folder (recommended, so the PWA/service worker works):
-
-```bash
 npx serve .
-# then open http://localhost:3000
+# open the printed http://localhost:3000
 ```
+
+Or just open `bull-invest-prototype.html` in a browser.
 
 ## 🌐 Deploy (free)
 
-**Netlify (drag & drop):** go to <https://app.netlify.com/drop> and drop this folder. You get a live URL instantly.
+- **GitHub Pages (recommended):** push this repo → **Settings → Pages → Source: `main`**. Live at `https://YOUR-USERNAME.github.io/bull-invest/`. A fresh URL avoids any old browser cache.
+- **Netlify:** drag the folder onto <https://app.netlify.com/drop>.
 
-**GitHub Pages:** push this repo, then in **Settings → Pages** set the source to your `main` branch. It publishes at `https://<you>.github.io/<repo>/`.
-
-The clean entry point is `index.html`, which loads the app.
+`index.html` is the clean entry point and loads the app.
 
 ## 📱 Install on a phone
 
-Open the hosted link, then:
-- **iPhone (Safari):** Share → *Add to Home Screen*
-- **Android (Chrome):** menu → *Install app*
+Open the hosted link, then **iPhone (Safari):** Share → *Add to Home Screen*; **Android (Chrome):** menu → *Install app*.
 
 ## 🧪 Testing
 
-The finance engine and color contrast are verified with Node scripts (no browser needed):
+No dependencies — just Node.js. Tests run automatically in CI on every push.
 
-- **Finance math:** 8/8 pass vs. textbook values (e.g. a $200k loan at 6% over 30 yrs = $1,199.10/mo).
-- **Contrast:** 0 WCAG‑AA failures in both light and dark themes.
+```bash
+npm test
+# finance.test.js   – calculator formulas vs textbook values (8 checks)
+# contrast.test.js  – WCAG AA color contrast, light + dark (14 checks)
+# i18n.test.js      – all 157 UI strings present in all 6 languages
+```
 
-Visual/mobile testing: open in Chrome, press **F12 → Ctrl+Shift+M** and pick an iPhone to preview the responsive layout (including Arabic RTL and dark mode) without a device.
+Latest local run: **finance 8/8 ✓**, **contrast 14/14 ✓ (≥4.5:1)**, **i18n 157×6 balanced ✓**.
+For visual/mobile checks, open in Chrome and press **F12 → Ctrl+Shift+M** to preview iPhone layout (including Arabic RTL and dark mode).
 
 ## 🗂️ Project structure
 
 | File | Purpose |
 |------|---------|
-| `index.html` | Clean entry point (redirects to the app) |
-| `bull-invest-prototype.html` | The full single‑file app (HTML/CSS/JS) |
-| `manifest.webmanifest` | PWA metadata |
-| `sw.js` | Service worker (network‑first caching) |
-| `icon-192.png`, `icon-512.png`, `apple-touch-icon.png` | App icons |
-| `qr-code.html` | QR‑code maker for your hosted link |
+| `index.html` | Clean entry point (loads the app) |
+| `bull-invest-prototype.html` | The full single-file app (HTML/CSS/JS) |
+| `manifest.webmanifest` | PWA metadata (installable) |
+| `icon-*.png`, `apple-touch-icon.png` | App icons (full-bleed) |
+| `qr-code.html` | QR-code maker for your hosted link |
 | `flyer.html` | Printable promo flyer |
+| `tests/` | Node test suite (finance, contrast, i18n) |
+| `.github/workflows/ci.yml` | Continuous integration |
+
+> Note: the service worker is intentionally disabled for this demo so updates always load fresh; the app stays installable via the manifest.
 
 ## 🛠️ Tech
 
-Plain HTML, CSS, and vanilla JavaScript. [Chart.js](https://www.chartjs.org/) for charts (via CDN). No framework, no build tooling.
+Plain HTML, CSS, and vanilla JavaScript. [Chart.js](https://www.chartjs.org/) via CDN. No framework, no build tooling.
 
 ## 🧭 From demo to real product
 
-Turning this into a real app is a fintech business, not just UI:
-1. **Mobile apps:** rebuild in React Native or Flutter, or wrap with Capacitor.
+1. **Mobile apps:** React Native or Flutter (or wrap with Capacitor).
 2. **Data:** account aggregation via Plaid / MX / Finicity.
 3. **Banking:** a chartered banking partner (or BaaS) to hold funds and fund ATM rebates.
-4. **Compliance:** KYC/AML, money‑transmitter licensing, data‑privacy law — with a fintech lawyer.
+4. **Compliance:** KYC/AML, money-transmitter licensing, data-privacy law — with a fintech attorney.
 
 ## ⚠️ Disclaimer
 
-Bull Invest is a concept demonstration. All balances, transactions, and figures are illustrative sample data. It is not affiliated with any bank or financial institution, provides no financial advice, and does not handle real funds. Bank names and logos are referenced for illustrative purposes only.
+Bull Invest is a concept demonstration. All balances, transactions, and figures are illustrative sample data. It is not affiliated with any bank or financial institution, provides no financial advice, and does not handle real funds. Bank names are referenced for illustration only.
+
+## 📚 Citation
+
+If you reference this project, please cite it (see [`CITATION.cff`](CITATION.cff)) — author **Botros Saleb**, idea & feedback **Angel Gallegos**.
 
 ## 📄 License
 
-[MIT](LICENSE)
+[MIT](LICENSE) © 2026 Botros Saleb

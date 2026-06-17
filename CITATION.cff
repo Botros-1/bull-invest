@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+title: "Bull Invest"
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - family-names: "Saleb"
+    given-names: "Botros"
+    roles: ["Builder", "Developer", "Tester"]
+abstract: >-
+  Bull Invest is a multi-bank personal-finance dashboard demo: a single secure
+  view of checking, savings, investing, retirement, and loan accounts, with a
+  zero-fee ATM reimbursement model, verified financial calculators, six
+  languages (including right-to-left Arabic), WCAG-AA accessibility, dark mode,
+  and installable PWA behavior. Built, developed, and tested entirely by
+  Botros Saleb. Original idea and ongoing feedback provided by Angel Gallegos.
+keywords:
+  - fintech
+  - personal-finance
+  - dashboard
+  - accessibility
+  - PWA
+license: MIT
+date-released: "2026-06-17"
+version: "1.8.0"
