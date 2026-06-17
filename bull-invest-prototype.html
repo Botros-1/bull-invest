@@ -160,9 +160,14 @@
   .gbadge{display:inline-block;margin-top:8px;font-size:10.5px;padding:2px 9px;border-radius:6px;font-weight:700}
   .gbadge.ok{background:var(--accent-weak);color:var(--accent-ink)}
   .gbadge.bad{background:rgba(201,42,42,.13);color:var(--down)}
-  .ins-row{display:flex;gap:26px;flex-wrap:wrap;margin-top:8px}
+  .ins-row{display:flex;gap:26px;flex-wrap:wrap;margin-top:8px;align-items:center}
+  .ins{text-align:center}
   .ins b{font-size:20px;font-weight:800;display:block}
   .ins small{color:var(--muted);font-size:12px}
+  .ring svg{width:78px;height:78px;display:block;margin:0 auto 4px}
+  .ring-bg{fill:none;stroke:var(--line);stroke-width:8}
+  .ring-fg{fill:none;stroke:var(--accent);stroke-width:8;stroke-linecap:round;stroke-dasharray:213.6;stroke-dashoffset:106.8;transition:stroke-dashoffset .7s ease}
+  .ring-num{fill:var(--ink);font-size:23px;font-weight:800;font-family:var(--mono)}
   .spend-row{margin-bottom:13px}
   .spend-row .top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px}
 
@@ -302,7 +307,7 @@
       <div class="who" id="footName">Signed in</div>
       <div class="sec"><span class="dot" aria-hidden="true"></span> <span data-i18n="shell.secfoot">Bank-grade security · AES-256</span></div>
       <button class="signout" onclick="signOut()" data-i18n="shell.signout">Sign out</button>
-      <div class="ver">Build v1.9 · insights + budget</div>
+      <div class="ver">Build v2.0 · streak ring + levels</div>
     </div>
   </aside>
 
@@ -354,7 +359,14 @@
         <div class="label" data-i18n="ins.title">Insights</div>
         <div class="ins-row">
           <div class="ins"><b class="num up">+$1,100</b><small data-i18n="ins.saved">Saved this month</small></div>
-          <div class="ins"><b class="num">6&nbsp;🔥</b><small data-i18n="ins.streak">Savings streak</small></div>
+          <div class="ins">
+            <div class="ring"><svg viewBox="0 0 80 80" role="img" aria-label="Savings streak: 6 of 12 months to next level">
+              <circle class="ring-bg" cx="40" cy="40" r="34"/>
+              <circle class="ring-fg" cx="40" cy="40" r="34" transform="rotate(-90 40 40)"/>
+              <text class="ring-num" x="40" y="48" text-anchor="middle">6</text>
+            </svg></div>
+            <small>🔥 <span data-i18n="ins.streak">Savings streak</span> · <span data-i18n="ins.level">Level</span> 2</small>
+          </div>
           <div class="ins"><b class="num">2&nbsp;/&nbsp;3</b><small data-i18n="ins.ontrack">Goals on track</small></div>
         </div>
       </div>
@@ -606,6 +618,7 @@ const T={
  "ins.saved":{en:"Saved this month",es:"Ahorrado este mes",fr:"Épargné ce mois-ci",ar:"المدّخر هذا الشهر",pt:"Poupado este mês",tl:"Naipon ngayong buwan"},
  "ins.streak":{en:"Savings streak",es:"Racha de ahorro",fr:"Série d'épargne",ar:"سلسلة الادخار",pt:"Sequência de poupança",tl:"Sunod-sunod na ipon"},
  "ins.ontrack":{en:"Goals on track",es:"Metas en camino",fr:"Objectifs en bonne voie",ar:"أهداف على المسار",pt:"Metas no caminho",tl:"Mga layuning nasa landas"},
+ "ins.level":{en:"Level",es:"Nivel",fr:"Niveau",ar:"المستوى",pt:"Nível",tl:"Antas"},
  "spend.title":{en:"Spending this month",es:"Gastos este mes",fr:"Dépenses ce mois-ci",ar:"الإنفاق هذا الشهر",pt:"Gastos este mês",tl:"Gastos ngayong buwan"},
  "spend.budget":{en:"of budget",es:"del presupuesto",fr:"du budget",ar:"من الميزانية",pt:"do orçamento",tl:"ng badyet"},
  "chip.all":{en:"All",es:"Todas",fr:"Toutes",ar:"الكل",pt:"Todas",tl:"Lahat"},
