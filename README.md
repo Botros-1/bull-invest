@@ -16,6 +16,8 @@ A modern personal-finance super-app concept — one secure dashboard for every a
 
 **🔗 Live demo:** https://botros-1.github.io/bull-invest/
 
+**Built, developed & tested by Botros Saleb**
+
 </div>
 
 > ⚠️ **This is a front-end demo / prototype with sample data.** It is not a real bank and does not move real money. See the [Disclaimer](#-disclaimer).
