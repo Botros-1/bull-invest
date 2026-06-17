@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, shrink-to-fit=no">
+<title>Bull Invest — All Your Money. One App.</title>
+<meta name="description" content="Bull Invest — all your money, one app. Multi-bank dashboard, zero ATM fees, calculators.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0ca15a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Bull Invest">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=5">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=5">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png?v=5">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#f4f6f8; --card:#ffffff; --panel:#fbfcfd;
+    --ink:#0c1116; --ink-2:#39424e; --muted:#5b6675; --muted-2:#6f7886;
+    --line:#e0e4ea; --line-2:#eef1f4;
+    --accent:#0ca15a; --accent-ink:#077a43; --accent-weak:#e8f6ee;
+    --up:#0c8f50; --down:#c92a2a;
+    --btn:#077a43; --on-btn:#ffffff;
+    --shadow:0 1px 2px rgba(12,17,22,.04), 0 2px 8px rgba(12,17,22,.04);
+    --mono:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+    --r:14px;
+  }
+  /* High contrast mode */
+  body.contrast{--ink:#000;--ink-2:#0e1620;--muted:#33414f;--muted-2:#3f4d5c;--line:#aab4bf;--line-2:#cdd5dd;--accent-ink:#0a5e34;--up:#0a6e3c;--down:#a81d1d;--shadow:0 0 0 1px rgba(0,0,0,.08)}
+  body.contrast .muted,body.contrast small{color:#33414f}
+  body.contrast .card,body.contrast .feature,body.contrast .vid{border-color:#9aa6b2}
+  /* Dark mode */
+  body.dark{--bg:#0b1118;--card:#141d29;--panel:#0f1722;--ink:#e8eef6;--ink-2:#c2ccd8;--muted:#9aa6b4;--muted-2:#8893a3;--line:#243140;--line-2:#1b2733;--accent:#1bb46a;--accent-ink:#43dd92;--accent-weak:#13311f;--up:#37d07f;--down:#f06565;--btn:#1bb46a;--on-btn:#06210f;--shadow:0 1px 2px rgba(0,0,0,.4)}
+  body.dark .avatar{background:#e8eef6;color:#0b1118}
+  html,body{max-width:100%;overflow-x:hidden}
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html.bigtext{zoom:1.15}
+  body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.5}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;color:inherit}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.4px;direction:ltr;display:inline-block}
+  svg{display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+  .skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;z-index:200;font-weight:600}
+  .skip:focus{left:8px}
+
+  /* RTL */
+  html[dir="rtl"] .side{border-right:0;border-left:1px solid var(--line)}
+  html[dir="rtl"] .acct:hover{transform:none}
+
+  /* ===== Onboarding ===== */
+  .onboard{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;
+    background:radial-gradient(900px 500px at 50% -10%,#eaf6ef,transparent 60%),var(--bg)}
+  .ob-card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);width:100%;max-width:404px;padding:32px}
+  .ob-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .ob-logo{width:54px;height:54px;border-radius:15px;object-fit:cover;display:block;margin-bottom:16px}
+  .ob-card h1{font-size:23px;font-weight:800;letter-spacing:-.4px}
+  .ob-tag{color:var(--muted);font-size:13.5px;margin-top:2px;margin-bottom:18px}
+  .ob-card label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-2);margin:14px 0 6px}
+  .ob-card label .opt{color:var(--muted-2);font-weight:400}
+  .ob-card input,.lang{width:100%;border:1px solid var(--line);border-radius:11px;padding:12px 13px;font-size:14.5px;color:var(--ink);background:var(--panel)}
+  .ob-card input:focus,.lang:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-weak);background:var(--card)}
+  .lang{cursor:pointer}
+  .lang option,select option{background:var(--card);color:var(--ink)}
+  .ob-btn{width:100%;margin-top:20px;border:0;border-radius:11px;background:var(--btn);color:var(--on-btn);font-weight:700;font-size:14.5px;padding:13px;cursor:pointer}
+  .ob-btn:hover{filter:brightness(.94)}
+  .ob-fine{text-align:center;color:var(--muted-2);font-size:11.5px;margin-top:14px}
+
+  /* ===== Shell ===== */
+  .app{display:none;grid-template-columns:248px 1fr;min-height:100vh}
+  .app.show{display:grid}
+  .side{background:var(--card);border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:100vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .brand{display:flex;align-items:center;gap:11px;padding:4px 8px 20px}
+  .brand .mk{width:40px;height:40px;border-radius:11px;object-fit:cover}
+  .brand h1{font-size:17px;font-weight:800;letter-spacing:-.3px}
+  .brand small{display:block;color:var(--muted-2);font-size:10px;letter-spacing:1.2px;text-transform:uppercase;margin-top:1px}
+  .navlabel{font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted-2);padding:14px 12px 6px;font-weight:600}
+  .nav button{display:flex;align-items:center;gap:11px;width:100%;text-align:start;background:transparent;border:0;color:var(--ink-2);
+    padding:10px 12px;border-radius:10px;font-size:14px;cursor:pointer;transition:.12s;font-weight:500}
+  .nav button svg{width:18px;height:18px;color:var(--muted);flex-shrink:0}
+  .nav button:hover{background:var(--line-2)}
+  .nav button[aria-current="page"]{background:var(--accent-weak);color:var(--accent-ink);font-weight:600}
+  .nav button[aria-current="page"] svg{color:var(--accent)}
+  .side-foot{margin-top:auto;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+  .side-foot .who{font-size:12.5px;font-weight:600}
+  .side-foot .sec{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:11px;margin-top:4px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;flex-shrink:0}
+  .signout{width:100%;margin-top:10px;border:1px solid var(--line);background:var(--card);color:var(--ink-2);border-radius:9px;padding:8px;font-size:12.5px;font-weight:600;cursor:pointer}
+  .signout:hover{background:var(--down);border-color:var(--down);color:#fff}
+  .ver{font-size:10px;color:var(--muted-2);text-align:center;margin-top:8px}
+  .appfoot{margin-top:30px;padding:16px 0 4px;border-top:1px solid var(--line-2);color:var(--muted-2);font-size:11px;text-align:center;line-height:1.5;max-width:760px}
+
+  .main{padding:24px 32px 64px;max-width:1320px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+  .hello h2{font-size:22px;font-weight:800;letter-spacing:-.4px}
+  .hello p{color:var(--muted);font-size:13px;margin-top:2px}
+  .topright{display:flex;align-items:center;gap:10px;position:relative}
+  .mood{display:flex;align-items:center;gap:7px;background:var(--accent-weak);color:var(--accent-ink);padding:7px 12px;border-radius:9px;font-size:12px;font-weight:600}
+  .btn{border:0;border-radius:10px;padding:10px 15px;font-weight:600;font-size:13px;cursor:pointer;transition:.12s}
+  .btn-primary{background:var(--btn);color:var(--on-btn)}.btn-primary:hover{filter:brightness(.94)}
+  .btn-ghost{background:var(--card);color:var(--ink);border:1px solid var(--line)}.btn-ghost:hover{background:var(--line-2)}
+  .icbtn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer;color:var(--ink-2);font-weight:700}
+  .icbtn:hover{background:var(--line-2)}
+  .icbtn[aria-pressed="true"]{background:var(--accent-weak);border-color:var(--accent);color:var(--accent-ink)}
+  .avatar{width:38px;height:38px;border-radius:10px;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:700;font-size:15px}
+
+  .settings{position:absolute;top:46px;inset-inline-end:0;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px rgba(12,17,22,.16);padding:16px;width:248px;z-index:40;display:none}
+  .settings.show{display:block}
+  .settings h4{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:10px}
+  .settings label{display:block;font-size:12.5px;font-weight:600;margin:12px 0 6px}
+  .set-sec{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted-2);font-weight:700;margin:14px 0 2px}
+  .toggle{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border:1px solid var(--line);border-radius:10px;margin-top:8px;cursor:pointer;font-size:13px;font-weight:600;background:var(--panel);width:100%}
+  .toggle[aria-pressed="true"]{background:var(--accent-weak);border-color:var(--accent);color:var(--accent-ink)}
+
+  .page{display:none;animation:fade .2s ease}.page.show{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  .grid{display:grid;gap:16px}
+  .c4{grid-template-columns:repeat(4,1fr)} .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:1.55fr 1fr} .c2e{grid-template-columns:1fr 1fr}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+  .label{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+  .stat{font-size:24px;font-weight:800;letter-spacing:-.6px}
+  .delta{font-size:12px;margin-top:6px;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+  .up{color:var(--up)} .down{color:var(--down)}
+  .hero{grid-column:span 4;display:flex;justify-content:space-between;align-items:center;gap:18px}
+  .hero .big{font-size:40px;font-weight:800;margin-top:4px;letter-spacing:-1.2px}
+  .hero .meta{color:var(--muted);font-size:12px;margin-top:12px;display:flex;align-items:center;gap:7px}
+
+  .section-title{display:flex;align-items:center;justify-content:space-between;margin:26px 0 12px}
+  .section-title h3{font-size:16px;font-weight:700;letter-spacing:-.2px}
+  .section-title a,.link{color:var(--accent-ink);font-size:12.5px;cursor:pointer;font-weight:600;text-decoration:underline}
+
+  .acct{display:flex;align-items:center;gap:13px;padding:13px 4px;border-bottom:1px solid var(--line-2);cursor:pointer;width:100%;text-align:start;background:none;border-left:0;border-right:0;border-top:0;font-size:14px}
+  .acct:last-child{border-bottom:0}
+  .acct:hover{background:var(--line-2)}
+  .bank-logo{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
+  .acct .info{flex:1;min-width:0}.acct .info b{font-size:14px;font-weight:600;display:block}
+  .acct .info small{color:var(--muted);display:block;margin-top:1px;font-size:12px}
+  .acct .bal{text-align:end;font-weight:700;font-size:15px}
+  .acct .bal small{display:block;color:var(--muted-2);font-weight:500;font-size:11px;margin-top:1px}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:start;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:9px 10px;border-bottom:1px solid var(--line)}
+  td{padding:12px 10px;border-bottom:1px solid var(--line-2)}
+  tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:var(--line-2)}
+  .tbadge{width:30px;height:30px;border-radius:8px;display:inline-grid;place-items:center;font-size:13px;font-weight:700;vertical-align:middle;margin-inline-end:9px}
+  .tag{font-size:10.5px;padding:3px 9px;border-radius:6px;background:var(--line-2);color:var(--ink-2);font-weight:500}
+
+  .cat .ctitle{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+  .progress{height:6px;border-radius:99px;background:var(--line);margin-top:12px;overflow:hidden}
+  .progress i{display:block;height:100%;border-radius:99px;background:var(--accent)}
+  .cat small{color:var(--muted);font-size:11.5px}
+  .gbadge{display:inline-block;margin-top:8px;font-size:10.5px;padding:2px 9px;border-radius:6px;font-weight:700}
+  .gbadge.ok{background:var(--accent-weak);color:var(--accent-ink)}
+  .gbadge.bad{background:rgba(201,42,42,.13);color:var(--down)}
+  .lvl{display:inline-block;margin-top:8px;margin-inline-start:6px;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:6px;background:var(--line-2);color:var(--ink-2)}
+  .ins-row{display:flex;gap:26px;flex-wrap:wrap;margin-top:8px;align-items:center}
+  .ins{text-align:center}
+  .ins b{font-size:20px;font-weight:800;display:block}
+  .ins small{color:var(--muted);font-size:12px}
+  .ring svg{width:78px;height:78px;display:block;margin:0 auto 4px}
+  .ring-bg{fill:none;stroke:var(--line);stroke-width:8}
+  .ring-fg{fill:none;stroke:var(--accent);stroke-width:8;stroke-linecap:round;stroke-dasharray:213.6;stroke-dashoffset:106.8;transition:stroke-dashoffset .7s ease}
+  .ring-num{fill:var(--ink);font-size:23px;font-weight:800;font-family:var(--mono)}
+  .spend-row{margin-bottom:13px}
+  .spend-row .top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px}
+
+  .feature{display:flex;gap:13px;align-items:flex-start;padding:16px;border-radius:12px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)}
+  .feature .fic{width:40px;height:40px;border-radius:10px;background:var(--accent-weak);display:grid;place-items:center;flex-shrink:0;color:var(--accent)}
+  .feature .fic svg{width:20px;height:20px}
+  .feature b{font-size:14px}.feature p{color:var(--muted);font-size:12.5px;margin-top:4px;line-height:1.5}
+
+  .calc-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:5px}
+  .calc-tab{padding:9px 14px;border-radius:8px;border:0;background:transparent;font-size:13px;cursor:pointer;color:var(--muted);font-weight:600}
+  .calc-tab[aria-selected="true"]{background:var(--accent-weak);color:var(--accent-ink)}
+  .calcpane{display:none}.calcpane.show{display:block}
+  .field{margin-bottom:13px}
+  .field label{display:block;font-size:12px;color:var(--ink-2);margin-bottom:6px;font-weight:600}
+  .field input,.field textarea{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:11px 12px;font-size:14px;font-family:var(--mono)}
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-weak);background:var(--card)}
+  .field .row{display:flex;gap:10px}.field .row>div{flex:1}
+  .res{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .res .big{font-size:30px;font-weight:800;color:var(--accent-ink);letter-spacing:-.8px}
+  .res-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line-2);font-size:13.5px}
+  .res-row:last-child{border-bottom:0}.res-row span{color:var(--muted)}.res-row b{font-family:var(--mono)}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+  .hint code{background:var(--line-2);padding:1px 6px;border-radius:5px;color:var(--accent-ink);font-family:var(--mono)}
+  .codebox{font-family:var(--mono);font-size:13px;min-height:108px;resize:vertical;line-height:1.5}
+  .runbar{display:flex;gap:8px;align-items:center;margin-top:10px}
+
+  .vid{border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--card);cursor:pointer;transition:.12s;box-shadow:var(--shadow);text-align:start;padding:0;width:100%}
+  .vid:hover{transform:translateY(-3px)}
+  .vid .thumb{height:138px;position:relative;display:grid;place-items:center}
+  .vid .play{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.95);display:grid;place-items:center;color:var(--ink)}
+  .vid .play svg{width:20px;height:20px;margin-inline-start:2px}
+  .vid .meta{padding:13px}.vid .meta b{font-size:13.5px;display:block}.vid .meta small{color:var(--muted);display:block;margin-top:4px;font-size:12px}
+  .src{position:absolute;bottom:8px;inset-inline-end:8px;background:rgba(12,17,22,.78);color:#fff;font-size:10.5px;padding:2px 8px;border-radius:6px;font-weight:600}
+
+  .chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .chip{padding:8px 14px;border-radius:9px;border:1px solid var(--line);background:var(--card);font-size:12.5px;cursor:pointer;color:var(--ink-2);font-weight:500}
+  .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .muted{color:var(--muted)}.mt{margin-top:16px}
+  .search{width:240px;background:var(--panel);border:1px solid var(--line);border-radius:9px;color:var(--ink);padding:9px 12px;font-size:13px}
+  .search:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-weak)}
+  canvas{max-height:230px}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(12,17,22,.45);display:none;place-items:center;z-index:60;padding:20px}
+  .modal-bg.show{display:grid}
+  .modal{background:var(--card);border:1px solid var(--line);border-radius:16px;max-width:420px;width:100%;padding:22px;box-shadow:0 20px 50px rgba(12,17,22,.2)}
+  .modal h3{font-size:17px;margin-bottom:5px}.modal p{color:var(--muted);font-size:13px;line-height:1.5}
+  .close{float:inline-end;cursor:pointer;color:var(--muted);font-size:19px;background:none;border:0}
+  .bank-opt{display:flex;align-items:center;gap:12px;padding:11px;border:1px solid var(--line);border-radius:10px;margin-top:9px;cursor:pointer;width:100%;text-align:start;background:none;font-size:14px}
+  .bank-opt:hover{background:var(--line-2)}
+
+  .menu-btn{display:none}
+  .scrim{display:none;position:fixed;inset:0;background:rgba(12,17,22,.45);z-index:70}
+  .scrim.show{display:block}
+  @media(max-width:1000px){
+    .menu-btn{display:grid}
+    .app.show{grid-template-columns:1fr}
+    .side{position:fixed;top:0;left:0;height:100vh;width:266px;z-index:80;transform:translateX(-112%);transition:transform .22s ease}
+    html[dir="rtl"] .side{left:auto;right:0;transform:translateX(112%)}
+    .side.open{transform:none;box-shadow:0 0 50px rgba(12,17,22,.28)}
+    html[dir="rtl"] .side.open{transform:none}
+    .c4,.c3,.c2,.c2e{grid-template-columns:1fr}
+    .hero{grid-column:1 / -1;flex-direction:column;align-items:flex-start}
+    .hero .big{font-size:34px}
+    .main{padding:18px 16px 64px}
+    .topbar{margin-bottom:16px}
+    .herochart{width:100%;margin-top:8px}
+  }
+  .herochart{width:280px}
+  @media(max-width:760px){
+    .c4{grid-template-columns:1fr}
+    .mood,.topbar .btn-ghost,.topbar .btn-primary{display:none}
+    .topbar{gap:8px;margin-bottom:14px}
+    .hello h2{font-size:19px}.hello p{font-size:12px}
+    .hero{padding:16px}.hero .big{font-size:28px}
+    .stat{font-size:21px}
+    .card{padding:15px}
+    table{font-size:12.5px}th,td{padding:9px 6px}
+    #transactions th:nth-child(2),#transactions td:nth-child(2),
+    #transactions th:nth-child(3),#transactions td:nth-child(3){display:none}
+    .calc-tabs{overflow-x:auto}
+    /* settings becomes an on-screen bottom sheet so it never gets cut off */
+    .settings{position:fixed;left:12px;right:12px;bottom:12px;top:auto;width:auto;max-height:78vh;overflow:auto;box-shadow:0 -8px 40px rgba(0,0,0,.35)}
+  }
+</style>
+</head>
+<body>
+<a href="#mainContent" class="skip" data-i18n="a11y.skip">Skip to main content</a>
+
+<!-- ===== ONBOARDING ===== -->
+<div class="onboard" id="onboard" role="dialog" aria-modal="true" aria-labelledby="obTitle">
+  <div class="ob-card">
+    <div class="ob-top">
+      <img class="ob-logo" src="icon-192.png?v=5" alt="" aria-hidden="true">
+      <div style="min-width:120px">
+        <label for="ob-lang" data-i18n="ob.language">Language</label>
+        <select id="ob-lang" class="lang" aria-label="Language"></select>
+      </div>
+    </div>
+    <h1 id="obTitle" data-i18n="ob.title">Create your account</h1>
+    <p class="ob-tag" data-i18n="ob.tag">All your money, one app. Let's set you up.</p>
+    <label for="ob-name" data-i18n="ob.firstname">First name</label>
+    <input id="ob-name" autocomplete="given-name">
+    <label for="ob-email"><span data-i18n="ob.email">Email</span> <span class="opt" data-i18n="ob.optional">(optional)</span></label>
+    <input id="ob-email" type="email" autocomplete="email">
+    <button class="ob-btn" onclick="createAccount()" data-i18n="ob.create">Create account →</button>
+    <p class="ob-fine" data-i18n="ob.fine">Demo only · nothing leaves your device.</p>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div class="app" id="app">
+  <div class="scrim" id="scrim" onclick="toggleMenu()" aria-hidden="true"></div>
+  <aside class="side">
+    <div class="brand">
+      <img class="mk" src="icon-192.png?v=5" alt="" aria-hidden="true">
+      <div><h1>Bull Invest</h1><small data-i18n="brand.sub">All your money</small></div>
+    </div>
+    <div class="navlabel" data-i18n="nav.overview">Overview</div>
+    <nav class="nav" id="nav" aria-label="Primary">
+      <button aria-current="page" data-page="dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg> <span data-i18n="nav.dashboard">Dashboard</span></button>
+      <button data-page="accounts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/></svg> <span data-i18n="nav.accounts">Accounts</span></button>
+      <button data-page="transactions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M7 7h12l-3-3M17 17H5l3 3"/></svg> <span data-i18n="nav.transactions">Transactions</span></button>
+      <button data-page="categories"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 12V3M12 12l6.4 6.4"/></svg> <span data-i18n="nav.goals">Goals &amp; Categories</span></button>
+    </nav>
+    <div class="navlabel" data-i18n="nav.tools">Tools</div>
+    <nav class="nav" aria-label="Tools">
+      <button data-page="calculators"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M8 15h2M14 11v6"/></svg> <span data-i18n="nav.calculators">Calculators</span></button>
+      <button data-page="atm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 9h18M7 15h4"/></svg> <span data-i18n="nav.atm">ATM &amp; Cards</span></button>
+    </nav>
+    <div class="navlabel" data-i18n="nav.trust">Trust &amp; Learn</div>
+    <nav class="nav" aria-label="Trust and Learn">
+      <button data-page="security"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> <span data-i18n="nav.security">Security</span></button>
+      <button data-page="learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg> <span data-i18n="nav.learn">Learn</span></button>
+    </nav>
+    <div class="side-foot">
+      <div class="who" id="footName">Signed in</div>
+      <div class="sec"><span class="dot" aria-hidden="true"></span> <span data-i18n="shell.secfoot">Bank-grade security · AES-256</span></div>
+      <button class="signout" onclick="signOut()" data-i18n="shell.signout">Sign out</button>
+      <div class="ver">Build v2.3-C · fictional banks</div>
+    </div>
+  </aside>
+
+  <main class="main" id="mainContent">
+    <header class="topbar">
+      <div class="hello">
+        <h2 id="pageTitle">Dashboard</h2>
+        <p id="pageSub"></p>
+      </div>
+      <div class="topright">
+        <button class="icbtn menu-btn" aria-label="Open menu" aria-expanded="false" onclick="toggleMenu()">☰</button>
+        <div class="mood"><span class="dot" aria-hidden="true"></span> <span data-i18n="top.markets">Markets: Bullish</span></div>
+        <button class="btn btn-ghost" onclick="openLink()" data-i18n="top.linkbank">+ Link bank</button>
+        <button class="icbtn" id="gearBtn" aria-haspopup="true" aria-expanded="false" aria-label="Settings and accessibility" onclick="toggleSettings()">⚙</button>
+        <div class="avatar" id="avatarInit" aria-hidden="true">B</div>
+
+        <div class="settings" id="settingsPanel" role="menu" aria-label="Settings">
+          <h4 data-i18n="set.title">Settings &amp; accessibility</h4>
+          <label for="top-lang" data-i18n="ob.language">Language</label>
+          <select id="top-lang" class="lang" aria-label="Language"></select>
+          <div class="set-sec" data-i18n="set.appearance">Appearance</div>
+          <button class="toggle" id="tgDark" aria-pressed="false" onclick="toggleDark()"><span data-i18n="set.dark">Dark mode</span><span aria-hidden="true">🌙</span></button>
+          <div class="set-sec" data-i18n="set.access">Accessibility</div>
+          <button class="toggle" id="tgBig" aria-pressed="false" onclick="toggleBig()"><span data-i18n="set.bigtext">Larger text</span><span aria-hidden="true">Aa</span></button>
+          <button class="toggle" id="tgContrast" aria-pressed="false" onclick="toggleContrast()"><span data-i18n="set.contrast">High contrast</span><span aria-hidden="true">◐</span></button>
+        </div>
+      </div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <section class="page show" id="dash" aria-labelledby="pageTitle" tabindex="-1">
+      <div class="grid c4">
+        <div class="card hero">
+          <div>
+            <div class="label" data-i18n="dash.networth">Total net worth · all banks</div>
+            <div class="big num">$301,650</div>
+            <div class="delta up">↑ $6,240 (2.1%) <span data-i18n="dash.permonth">this month</span></div>
+            <div class="meta"><span class="dot" aria-hidden="true"></span> <span data-i18n="dash.institutions">5 institutions linked · synced 2 min ago</span></div>
+          </div>
+          <div class="herochart"><canvas id="netChart" role="img" aria-label="Net worth trend, rising over 12 months"></canvas></div>
+        </div>
+        <div class="card"><div class="label" data-i18n="dash.cashsavings">Cash &amp; Savings</div><div class="stat num">$55,910</div><div class="delta up">↑ $1,100</div></div>
+        <div class="card"><div class="label" data-i18n="dash.investments">Investments</div><div class="stat num">$198,340</div><div class="delta up">↑ $5,890</div></div>
+        <div class="card"><div class="label" data-i18n="dash.retirement">Retirement</div><div class="stat num">$331,600</div><div class="delta up">↑ $4,210</div></div>
+        <div class="card"><div class="label" data-i18n="dash.debts">Debts &amp; Loans</div><div class="stat num down">−$284,200</div><div class="delta up">↓ <span data-i18n="dash.paid">paid</span> $1,960</div></div>
+      </div>
+
+      <div class="card mt insights">
+        <div class="label" data-i18n="ins.title">Insights</div>
+        <div class="ins-row">
+          <div class="ins"><b class="num up">+$1,100</b><small data-i18n="ins.saved">Saved this month</small></div>
+          <div class="ins">
+            <div class="ring"><svg viewBox="0 0 80 80" role="img" aria-label="Savings streak: 6 of 12 months to next level">
+              <circle class="ring-bg" cx="40" cy="40" r="34"/>
+              <circle class="ring-fg" cx="40" cy="40" r="34" transform="rotate(-90 40 40)"/>
+              <text class="ring-num" x="40" y="48" text-anchor="middle">6</text>
+            </svg></div>
+            <small>🔥 <span data-i18n="ins.streak">Savings streak</span> · <span data-i18n="ins.level">Level</span> 2</small>
+          </div>
+          <div class="ins"><b class="num">2&nbsp;/&nbsp;3</b><small data-i18n="ins.ontrack">Goals on track</small></div>
+        </div>
+      </div>
+
+      <div class="grid c2 mt">
+        <div class="card">
+          <div class="section-title" style="margin:0 0 6px"><h3 data-i18n="dash.linked">Linked accounts</h3><a onclick="go('accounts')" data-i18n="dash.viewall">View all →</a></div>
+          <div id="acctList"></div>
+        </div>
+        <div class="card">
+          <div class="section-title" style="margin:0 0 4px"><h3 data-i18n="dash.recent">Recent activity</h3><a onclick="go('transactions')" data-i18n="dash.all">All →</a></div>
+          <table><tbody id="txMini"></tbody></table>
+        </div>
+      </div>
+
+      <div class="grid c3 mt">
+        <div class="card cat"><div class="ctitle" data-i18n="goal.retirement">Retirement goal</div><div class="stat num">$331,600 <span style="font-size:13px;color:var(--muted);font-weight:500">/ $1.2M</span></div><div class="progress"><i style="width:28%"></i></div><small>28% · age 60</small><br><span class="gbadge ok" data-i18n="goal.ontrack">On track</span><span class="lvl"><span data-i18n="ins.level">Level</span> 2</span></div>
+        <div class="card cat"><div class="ctitle" data-i18n="goal.emergency">Emergency fund</div><div class="stat num">$18,000 <span style="font-size:13px;color:var(--muted);font-weight:500">/ $24,000</span></div><div class="progress"><i style="width:75%"></i></div><small>75% · 4.5 mo</small><br><span class="gbadge ok" data-i18n="goal.ontrack">On track</span><span class="lvl"><span data-i18n="ins.level">Level</span> 4</span></div>
+        <div class="card cat"><div class="ctitle" data-i18n="goal.mortgage">Mortgage payoff</div><div class="stat num">$268,000</div><div class="progress"><i style="width:38%;background:var(--down)"></i></div><small>38% · 19 yrs @ 5.1%</small><br><span class="gbadge bad" data-i18n="goal.behind">Behind</span><span class="lvl"><span data-i18n="ins.level">Level</span> 2</span></div>
+      </div>
+    </section>
+
+    <!-- ACCOUNTS -->
+    <section class="page" id="accounts" tabindex="-1">
+      <div class="chip-row" id="acctChips" role="group" aria-label="Filter accounts">
+        <button class="chip" aria-pressed="true" data-f="all" data-i18n="chip.all">All</button>
+        <button class="chip" aria-pressed="false" data-f="Checking" data-i18n="chip.checking">Checking</button>
+        <button class="chip" aria-pressed="false" data-f="Savings" data-i18n="chip.savings">Savings</button>
+        <button class="chip" aria-pressed="false" data-f="Investing" data-i18n="chip.investing">Investing</button>
+        <button class="chip" aria-pressed="false" data-f="Retirement" data-i18n="chip.retirement">Retirement</button>
+        <button class="chip" aria-pressed="false" data-f="Loan" data-i18n="chip.loans">Loans</button>
+      </div>
+      <div class="card"><div id="acctFull"></div></div>
+    </section>
+
+    <!-- TRANSACTIONS -->
+    <section class="page" id="transactions" tabindex="-1">
+      <div class="card">
+        <div class="section-title" style="margin:0 0 10px">
+          <h3 data-i18n="tx.title">All transactions · every bank, unified</h3>
+          <input class="search" id="txSearch" data-i18n-ph="tx.search" placeholder="Search merchant or bank…" aria-label="Search transactions" oninput="renderTxTable()">
+        </div>
+        <table>
+          <thead><tr><th data-i18n="th.merchant">Merchant</th><th data-i18n="th.account">Account</th><th data-i18n="th.category">Category</th><th data-i18n="th.date">Date</th><th style="text-align:end" data-i18n="th.amount">Amount</th></tr></thead>
+          <tbody id="txFull"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="page" id="categories" tabindex="-1">
+      <div class="grid c2e">
+        <div class="card"><div class="label" data-i18n="cat.where">Where your money lives</div><canvas id="catChart" role="img" aria-label="Money by category: retirement, investing, savings, cash"></canvas></div>
+        <div class="card"><div class="label" data-i18n="cat.networth12">12-month net worth ($000s)</div><canvas id="trendChart" role="img" aria-label="Net worth by month, rising trend"></canvas></div>
+      </div>
+      <div class="section-title"><h3 data-i18n="cat.goalscats">Goals &amp; categories</h3></div>
+      <div class="grid c4">
+        <div class="card cat"><div class="ctitle" data-i18n="dash.retirement">Retirement</div><div class="stat num">$331,600</div><div class="progress"><i style="width:28%"></i></div><small>Summit 401k + Vanta IRA</small><br><span class="lvl"><span data-i18n="ins.level">Level</span> 2</span></div>
+        <div class="card cat"><div class="ctitle" data-i18n="cat.savings">Savings</div><div class="stat num">$42,180</div><div class="progress"><i style="width:75%"></i></div><small>2 high-yield · 4.3% APY</small><br><span class="lvl"><span data-i18n="ins.level">Level</span> 4</span></div>
+        <div class="card cat"><div class="ctitle" data-i18n="cat.investing">Investing</div><div class="stat num">$198,340</div><div class="progress"><i style="width:64%"></i></div><small>Brokerage · +12.4% YTD</small><br><span class="lvl"><span data-i18n="ins.level">Level</span> 4</span></div>
+        <div class="card cat"><div class="ctitle" data-i18n="cat.loans">Loans / Mortgage</div><div class="stat num down">−$284,200</div><div class="progress"><i style="width:38%;background:var(--down)"></i></div><small>Mortgage + auto loan</small><br><span class="lvl"><span data-i18n="ins.level">Level</span> 2</span></div>
+      </div>
+      <div class="section-title"><h3 data-i18n="spend.title">Spending this month</h3></div>
+      <div class="card"><div id="spendList"></div></div>
+    </section>
+
+    <!-- CALCULATORS -->
+    <section class="page" id="calculators" tabindex="-1">
+      <p class="muted" style="font-size:13px;margin-bottom:14px" data-i18n="calc.intro">Run the numbers yourself. Every result uses the same finance formulas a bank or accountant uses — and you can write your own calculation in the custom tab.</p>
+      <div class="calc-tabs" id="calcTabs" role="tablist" aria-label="Calculators">
+        <button class="calc-tab" role="tab" aria-selected="true" data-c="invest" data-i18n="tab.invest">Investment Growth</button>
+        <button class="calc-tab" role="tab" aria-selected="false" data-c="loan" data-i18n="tab.loan">Loan / Mortgage</button>
+        <button class="calc-tab" role="tab" aria-selected="false" data-c="retire" data-i18n="tab.retire">Retirement (401k)</button>
+        <button class="calc-tab" role="tab" aria-selected="false" data-c="goal" data-i18n="tab.goal">Savings Goal</button>
+        <button class="calc-tab" role="tab" aria-selected="false" data-c="custom" data-i18n="tab.custom">Custom · code it</button>
+      </div>
+
+      <div class="calcpane show" id="c-invest"><div class="grid c2e">
+        <div class="card">
+          <div class="field"><label for="i_pv" data-i18n="f.start">Starting amount ($)</label><input id="i_pv" inputmode="decimal" value="10000" oninput="calcInvest()"></div>
+          <div class="field row"><div><label for="i_pmt" data-i18n="f.monthly">Monthly contribution ($)</label><input id="i_pmt" inputmode="decimal" value="500" oninput="calcInvest()"></div>
+            <div><label for="i_rate" data-i18n="f.return">Annual return (%)</label><input id="i_rate" inputmode="decimal" value="7" oninput="calcInvest()"></div></div>
+          <div class="field"><label for="i_yrs" data-i18n="f.years">Years</label><input id="i_yrs" inputmode="decimal" value="25" oninput="calcInvest()"></div>
+          <p class="hint">FV = PV(1+r)ⁿ + PMT·[((1+r)ⁿ−1)/r]</p>
+        </div>
+        <div class="res" id="r-invest" role="status" aria-live="polite"></div>
+      </div></div>
+
+      <div class="calcpane" id="c-loan"><div class="grid c2e">
+        <div class="card">
+          <div class="field"><label for="l_amt" data-i18n="f.loanamt">Loan / home price financed ($)</label><input id="l_amt" inputmode="decimal" value="350000" oninput="calcLoan()"></div>
+          <div class="field row"><div><label for="l_rate" data-i18n="f.rate">Interest rate (% APR)</label><input id="l_rate" inputmode="decimal" value="5.1" oninput="calcLoan()"></div>
+            <div><label for="l_yrs" data-i18n="f.term">Term (years)</label><input id="l_yrs" inputmode="decimal" value="30" oninput="calcLoan()"></div></div>
+          <p class="hint">M = P·i / (1−(1+i)⁻ⁿ)</p>
+        </div>
+        <div class="res" id="r-loan" role="status" aria-live="polite"></div>
+      </div></div>
+
+      <div class="calcpane" id="c-retire"><div class="grid c2e">
+        <div class="card">
+          <div class="field"><label for="rt_bal" data-i18n="f.curbal">Current 401(k)/IRA balance ($)</label><input id="rt_bal" inputmode="decimal" value="50000" oninput="calcRetire()"></div>
+          <div class="field row"><div><label for="rt_emp" data-i18n="f.yourmonthly">Your monthly ($)</label><input id="rt_emp" inputmode="decimal" value="800" oninput="calcRetire()"></div>
+            <div><label for="rt_match" data-i18n="f.match">Employer match ($/mo)</label><input id="rt_match" inputmode="decimal" value="200" oninput="calcRetire()"></div></div>
+          <div class="field row"><div><label for="rt_age" data-i18n="f.curage">Current age</label><input id="rt_age" inputmode="decimal" value="32" oninput="calcRetire()"></div>
+            <div><label for="rt_ret" data-i18n="f.retat">Retire at</label><input id="rt_ret" inputmode="decimal" value="65" oninput="calcRetire()"></div></div>
+          <div class="field"><label for="rt_rate" data-i18n="f.return">Annual return (%)</label><input id="rt_rate" inputmode="decimal" value="7" oninput="calcRetire()"></div>
+        </div>
+        <div class="res" id="r-retire" role="status" aria-live="polite"></div>
+      </div></div>
+
+      <div class="calcpane" id="c-goal"><div class="grid c2e">
+        <div class="card">
+          <div class="field"><label for="g_target" data-i18n="f.goaltarget">Savings goal ($)</label><input id="g_target" inputmode="decimal" value="100000" oninput="calcGoal()"></div>
+          <div class="field row"><div><label for="g_pv" data-i18n="f.saved">Already saved ($)</label><input id="g_pv" inputmode="decimal" value="5000" oninput="calcGoal()"></div>
+            <div><label for="g_rate" data-i18n="f.apy">APY (%)</label><input id="g_rate" inputmode="decimal" value="4.3" oninput="calcGoal()"></div></div>
+          <div class="field"><label for="g_yrs" data-i18n="f.yearsreach">Years to reach it</label><input id="g_yrs" inputmode="decimal" value="5" oninput="calcGoal()"></div>
+        </div>
+        <div class="res" id="r-goal" role="status" aria-live="polite"></div>
+      </div></div>
+
+      <div class="calcpane" id="c-custom"><div class="grid c2e">
+        <div class="card">
+          <div class="field"><label for="cx_code" data-i18n="cx.label">Write your own calculation (JavaScript expression)</label>
+            <textarea id="cx_code" class="codebox" oninput="calcCustom()">// FV(pv, pmt, ratePct, years)
+// PMT(principal, ratePct, years)
+// GOAL(target, pv, ratePct, years)
+// + full Math.*
+72 / 8</textarea></div>
+          <div class="runbar"><button class="btn btn-primary" onclick="calcCustom()" data-i18n="cx.run">Run</button>
+            <span class="muted" style="font-size:12px" data-i18n="cx.local">Runs locally in your browser.</span></div>
+          <p class="hint">FV(10000, 500, 7, 25) · PMT(350000, 5.1, 30)</p>
+        </div>
+        <div class="res" role="status" aria-live="polite"><div class="label" data-i18n="r.result">Result</div><div class="big num" id="cx_out" style="font-size:26px;word-break:break-all">—</div><div class="hint" id="cx_err" style="color:var(--down)"></div></div>
+      </div></div>
+    </section>
+
+    <!-- ATM -->
+    <section class="page" id="atm" tabindex="-1">
+      <div class="card">
+        <div class="label" data-i18n="atm.card">Bull Invest Visa® Platinum Debit</div>
+        <div style="font-size:30px;font-weight:800;letter-spacing:-.8px;margin-top:6px" data-i18n="atm.headline">$0 ATM fees. Anywhere on Earth.</div>
+        <p class="muted mt" style="max-width:560px;font-size:13.5px" data-i18n="atm.body">Use any ATM, any country. Every surcharge is automatically rebated within days — no claim forms, no limits, no foreign-transaction fees. Modeled on the unlimited reimbursement Vanta &amp; Summit already offer today.</p>
+      </div>
+      <div class="grid c3 mt">
+        <div class="feature"><div class="fic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/></svg></div><div><b data-i18n="af1.t">Unlimited worldwide rebates</b><p data-i18n="af1.d">100% of ATM surcharges refunded automatically, home and abroad.</p></div></div>
+        <div class="feature"><div class="fic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></svg></div><div><b data-i18n="af2.t">No claims, automatic</b><p data-i18n="af2.d">Refunds appear in a few days — nothing to file, nothing to call.</p></div></div>
+        <div class="feature"><div class="fic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h13l-2-2M20 17H7l2 2"/></svg></div><div><b data-i18n="af3.t">$0 foreign-transaction fees</b><p data-i18n="af3.d">Best available exchange rate on every withdrawal and purchase.</p></div></div>
+      </div>
+      <div class="card mt"><div class="label" data-i18n="atm.rebated">ATM fees rebated this year</div><div class="stat num mt up">$184.50</div><div class="muted" style="font-size:12.5px;margin-top:4px" data-i18n="atm.across">Across 22 withdrawals in 4 countries</div></div>
+    </section>
+
+    <!-- SECURITY -->
+    <section class="page" id="security" tabindex="-1">
+      <div class="card"><h3 style="font-size:16px" data-i18n="sec.title">Security-first backend</h3>
+        <p class="muted mt" style="font-size:13.5px;line-height:1.6;max-width:720px" data-i18n="sec.body">Bull Invest never stores your bank passwords. Accounts link through tokenized, read-only connections (OAuth open-banking), so the app shows balances and transactions but can never move money without your explicit approval.</p></div>
+      <div class="grid c3 mt">
+        <div class="feature"><div class="fic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div><div><b data-i18n="s1.t">AES-256 · TLS 1.3</b><p data-i18n="s1.d">Bank-grade encryption at rest and in transit.</p></div></div>
+        <div class="feature"><div class="fic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="12" r="5"/><path d="M12.5 12H21l-2 2 2 2"/></svg></div><div><b data-i18n="s2.t">Tokenized credentials</b><p data-i18n="s2.d">Logins become revocable tokens — no password to steal.</p></div></div>
+        <div class="feature"><div class="fic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></div><div><b data-i18n="s3.t">Read-only by default</b><p data-i18n="s3.d">Linked accounts are view-only; transfers need step-up auth.</p></div></div>
+        <div class="feature"><div class="fic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div><div><b data-i18n="s4.t">SOC 2 · ISO 27001 · PCI-DSS</b><p data-i18n="s4.d">Independent audits and annual penetration testing.</p></div></div>
+        <div class="feature"><div class="fic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/></svg></div><div><b data-i18n="s5.t">Biometric + 2FA</b><p data-i18n="s5.d">Face/fingerprint unlock plus device-bound two-factor.</p></div></div>
+        <div class="feature"><div class="fic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8z"/><path d="M10.5 21a1.8 1.8 0 0 0 3 0"/></svg></div><div><b data-i18n="s6.t">Real-time alerts</b><p data-i18n="s6.d">Instant notice on new devices, large transactions, or logins.</p></div></div>
+      </div>
+    </section>
+
+    <!-- LEARN -->
+    <section class="page" id="learn" tabindex="-1">
+      <div class="section-title" style="margin:0 0 4px"><h3 data-i18n="learn.title">Learn — managing &amp; growing your money</h3></div>
+      <p class="muted" style="font-size:12.5px;margin-bottom:14px" data-i18n="learn.note">Tap any video to watch it on YouTube. In the real app these would be Bull Invest's own in-app tutorials.</p>
+      <div class="grid c3" id="vidGrid"></div>
+    </section>
+
+    <footer class="appfoot" data-i18n="app.disclaimer">Demo with sample data. Bull Invest is not a bank and is not affiliated with or endorsed by any institution shown. Not financial advice.</footer>
+  </main>
+</div>
+
+<!-- modal -->
+<div class="modal-bg" id="linkModal"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="lmTitle">
+  <button class="close" onclick="closeLink()" aria-label="Close">✕</button>
+  <h3 id="lmTitle" data-i18n="lm.title">Link a new bank</h3><p data-i18n="lm.body">Connect securely via tokenized, read-only access. Bull Invest never sees your password.</p>
+  <div id="linkOpts" class="mt"></div>
+</div></div>
+
+<script>
+/* ===================== I18N ===================== */
+const LANGS=[["en","English"],["es","Español"],["fr","Français"],["ar","العربية"],["pt","Português"],["tl","Tagalog"]];
+const LOCALE={en:"en-US",es:"es-ES",fr:"fr-FR",ar:"ar",pt:"pt-BR",tl:"fil-PH"};
+let LANG="en";
+const T={
+ "a11y.skip":{en:"Skip to main content",es:"Saltar al contenido principal",fr:"Aller au contenu principal",ar:"تخطَّ إلى المحتوى الرئيسي",pt:"Pular para o conteúdo principal",tl:"Lumaktaw sa pangunahing nilalaman"},
+ "set.title":{en:"Settings & accessibility",es:"Ajustes y accesibilidad",fr:"Paramètres et accessibilité",ar:"الإعدادات وإمكانية الوصول",pt:"Configurações e acessibilidade",tl:"Mga setting at accessibility"},
+ "set.bigtext":{en:"Larger text",es:"Texto más grande",fr:"Texte plus grand",ar:"نص أكبر",pt:"Texto maior",tl:"Mas malaking teksto"},
+ "set.appearance":{en:"Appearance",es:"Apariencia",fr:"Apparence",ar:"المظهر",pt:"Aparência",tl:"Hitsura"},
+ "set.access":{en:"Accessibility",es:"Accesibilidad",fr:"Accessibilité",ar:"إمكانية الوصول",pt:"Acessibilidade",tl:"Accessibility"},
+ "set.dark":{en:"Dark mode",es:"Modo oscuro",fr:"Mode sombre",ar:"الوضع الداكن",pt:"Modo escuro",tl:"Dark mode"},
+ "set.contrast":{en:"High contrast",es:"Alto contraste",fr:"Contraste élevé",ar:"تباين عالٍ",pt:"Alto contraste",tl:"Mataas na contrast"},
+ "brand.sub":{en:"All your money",es:"Todo tu dinero",fr:"Tout votre argent",ar:"كل أموالك",pt:"Todo o seu dinheiro",tl:"Lahat ng pera mo"},
+ "nav.overview":{en:"Overview",es:"Resumen",fr:"Aperçu",ar:"نظرة عامة",pt:"Visão geral",tl:"Pangkalahatan"},
+ "nav.tools":{en:"Tools",es:"Herramientas",fr:"Outils",ar:"الأدوات",pt:"Ferramentas",tl:"Mga kasangkapan"},
+ "nav.trust":{en:"Trust & Learn",es:"Confianza y aprendizaje",fr:"Confiance et apprentissage",ar:"الثقة والتعلّم",pt:"Confiança e aprendizado",tl:"Tiwala at Pag-aaral"},
+ "nav.dashboard":{en:"Dashboard",es:"Panel",fr:"Tableau de bord",ar:"لوحة التحكم",pt:"Painel",tl:"Dashboard"},
+ "nav.accounts":{en:"Accounts",es:"Cuentas",fr:"Comptes",ar:"الحسابات",pt:"Contas",tl:"Mga Account"},
+ "nav.transactions":{en:"Transactions",es:"Transacciones",fr:"Transactions",ar:"المعاملات",pt:"Transações",tl:"Mga Transaksyon"},
+ "nav.goals":{en:"Goals & Categories",es:"Metas y categorías",fr:"Objectifs et catégories",ar:"الأهداف والفئات",pt:"Metas e categorias",tl:"Mga Layunin at Kategorya"},
+ "nav.calculators":{en:"Calculators",es:"Calculadoras",fr:"Calculatrices",ar:"الحاسبات",pt:"Calculadoras",tl:"Mga Calculator"},
+ "nav.atm":{en:"ATM & Cards",es:"Cajeros y tarjetas",fr:"Distributeurs et cartes",ar:"الصراف والبطاقات",pt:"Caixas e cartões",tl:"ATM at mga Card"},
+ "nav.security":{en:"Security",es:"Seguridad",fr:"Sécurité",ar:"الأمان",pt:"Segurança",tl:"Seguridad"},
+ "nav.learn":{en:"Learn",es:"Aprender",fr:"Apprendre",ar:"تعلّم",pt:"Aprender",tl:"Matuto"},
+ "shell.secfoot":{en:"Bank-grade security · AES-256",es:"Seguridad de nivel bancario · AES-256",fr:"Sécurité bancaire · AES-256",ar:"أمان بمستوى البنوك · AES-256",pt:"Segurança nível bancário · AES-256",tl:"Seguridad na antas-bangko · AES-256"},
+ "shell.signout":{en:"Sign out",es:"Cerrar sesión",fr:"Se déconnecter",ar:"تسجيل الخروج",pt:"Sair",tl:"Mag-sign out"},
+ "shell.signedinas":{en:"Signed in as",es:"Sesión iniciada como",fr:"Connecté en tant que",ar:"تسجيل الدخول باسم",pt:"Conectado como",tl:"Naka-sign in bilang"},
+ "top.markets":{en:"Markets: Bullish",es:"Mercados: alcistas",fr:"Marchés : haussiers",ar:"الأسواق: صاعدة",pt:"Mercados: em alta",tl:"Mga Merkado: Bullish"},
+ "top.linkbank":{en:"+ Link bank",es:"+ Vincular banco",fr:"+ Lier une banque",ar:"+ ربط بنك",pt:"+ Vincular banco",tl:"+ Mag-link ng bangko"},
+ "ob.language":{en:"Language",es:"Idioma",fr:"Langue",ar:"اللغة",pt:"Idioma",tl:"Wika"},
+ "ob.title":{en:"Create your account",es:"Crea tu cuenta",fr:"Créez votre compte",ar:"أنشئ حسابك",pt:"Crie sua conta",tl:"Gumawa ng account"},
+ "ob.tag":{en:"All your money, one app. Let's set you up.",es:"Todo tu dinero en una app. Vamos a configurarte.",fr:"Tout votre argent, une seule app. Configurons votre compte.",ar:"كل أموالك في تطبيق واحد. لنُعدّ حسابك.",pt:"Todo o seu dinheiro num app. Vamos configurar.",tl:"Lahat ng pera mo sa isang app. Ihanda ka namin."},
+ "ob.firstname":{en:"First name",es:"Nombre",fr:"Prénom",ar:"الاسم الأول",pt:"Nome",tl:"Pangalan"},
+ "ob.email":{en:"Email",es:"Correo electrónico",fr:"E-mail",ar:"البريد الإلكتروني",pt:"E-mail",tl:"Email"},
+ "ob.optional":{en:"(optional)",es:"(opcional)",fr:"(facultatif)",ar:"(اختياري)",pt:"(opcional)",tl:"(opsyonal)"},
+ "ob.create":{en:"Create account →",es:"Crear cuenta →",fr:"Créer le compte →",ar:"إنشاء الحساب ←",pt:"Criar conta →",tl:"Gumawa ng account →"},
+ "ob.fine":{en:"Demo only · nothing leaves your device.",es:"Solo demo · nada sale de tu dispositivo.",fr:"Démo uniquement · rien ne quitte votre appareil.",ar:"للعرض فقط · لا شيء يغادر جهازك.",pt:"Apenas demonstração · nada sai do seu dispositivo.",tl:"Demo lang · walang lalabas sa device mo."},
+ "greet.morning":{en:"Good morning",es:"Buenos días",fr:"Bonjour",ar:"صباح الخير",pt:"Bom dia",tl:"Magandang umaga"},
+ "greet.afternoon":{en:"Good afternoon",es:"Buenas tardes",fr:"Bon après-midi",ar:"مساء الخير",pt:"Boa tarde",tl:"Magandang hapon"},
+ "greet.evening":{en:"Good evening",es:"Buenas noches",fr:"Bonsoir",ar:"مساء الخير",pt:"Boa noite",tl:"Magandang gabi"},
+ "sub.dash":{en:"Here's your complete financial picture",es:"Aquí está tu panorama financiero completo",fr:"Voici votre situation financière complète",ar:"إليك صورتك المالية الكاملة",pt:"Aqui está seu panorama financeiro completo",tl:"Narito ang kumpletong larawan ng pananalapi mo"},
+ "sub.accounts":{en:"All balances from every linked institution",es:"Todos los saldos de cada institución vinculada",fr:"Tous les soldes de chaque institution liée",ar:"جميع الأرصدة من كل مؤسسة مرتبطة",pt:"Todos os saldos de cada instituição vinculada",tl:"Lahat ng balanse mula sa bawat naka-link na institusyon"},
+ "sub.transactions":{en:"Unified, auto-categorized activity",es:"Actividad unificada y categorizada automáticamente",fr:"Activité unifiée et catégorisée automatiquement",ar:"نشاط موحّد ومصنّف تلقائيًا",pt:"Atividade unificada e categorizada automaticamente",tl:"Pinag-isang aktibidad, awtomatikong na-kategorya"},
+ "sub.goals":{en:"Track retirement, savings, investing and loans",es:"Sigue jubilación, ahorros, inversiones y préstamos",fr:"Suivez retraite, épargne, investissements et prêts",ar:"تتبّع التقاعد والادخار والاستثمار والقروض",pt:"Acompanhe aposentadoria, poupança, investimentos e empréstimos",tl:"Subaybayan ang pagreretiro, ipon, pamumuhunan at utang"},
+ "sub.calculators":{en:"Run the numbers yourself — verified finance formulas",es:"Haz los cálculos tú mismo — fórmulas financieras verificadas",fr:"Faites les calculs vous-même — formules financières vérifiées",ar:"احسب بنفسك — صيغ مالية موثّقة",pt:"Faça as contas você mesmo — fórmulas verificadas",tl:"Ikaw ang magkuwenta — beripikadong pormula"},
+ "sub.atm":{en:"Zero-fee cash, anywhere in the world",es:"Efectivo sin comisiones, en cualquier parte del mundo",fr:"Retraits sans frais, partout dans le monde",ar:"نقد بدون رسوم، في أي مكان في العالم",pt:"Dinheiro sem taxas, em qualquer lugar do mundo",tl:"Walang-bayad na cash, kahit saan sa mundo"},
+ "sub.security":{en:"How Bull Invest protects your money and data",es:"Cómo Bull Invest protege tu dinero y tus datos",fr:"Comment Bull Invest protège votre argent et vos données",ar:"كيف يحمي Bull Invest أموالك وبياناتك",pt:"Como o Bull Invest protege seu dinheiro e seus dados",tl:"Paano pinoprotektahan ng Bull Invest ang pera at datos mo"},
+ "sub.learn":{en:"Short videos on managing and growing money",es:"Videos cortos para administrar y hacer crecer tu dinero",fr:"Vidéos courtes pour gérer et faire fructifier votre argent",ar:"مقاطع قصيرة حول إدارة المال وتنميته",pt:"Vídeos curtos sobre gerir e multiplicar dinheiro",tl:"Maiikling video tungkol sa pamamahala ng pera"},
+ "dash.networth":{en:"Total net worth · all banks",es:"Patrimonio neto total · todos los bancos",fr:"Valeur nette totale · toutes les banques",ar:"إجمالي الثروة الصافية · جميع البنوك",pt:"Patrimônio líquido total · todos os bancos",tl:"Kabuuang net worth · lahat ng bangko"},
+ "dash.permonth":{en:"this month",es:"este mes",fr:"ce mois-ci",ar:"هذا الشهر",pt:"este mês",tl:"ngayong buwan"},
+ "dash.cashsavings":{en:"Cash & Savings",es:"Efectivo y ahorros",fr:"Liquidités et épargne",ar:"النقد والمدخرات",pt:"Dinheiro e poupança",tl:"Cash at Ipon"},
+ "dash.investments":{en:"Investments",es:"Inversiones",fr:"Investissements",ar:"الاستثمارات",pt:"Investimentos",tl:"Mga Pamumuhunan"},
+ "dash.retirement":{en:"Retirement",es:"Jubilación",fr:"Retraite",ar:"التقاعد",pt:"Aposentadoria",tl:"Pagreretiro"},
+ "dash.debts":{en:"Debts & Loans",es:"Deudas y préstamos",fr:"Dettes et prêts",ar:"الديون والقروض",pt:"Dívidas e empréstimos",tl:"Mga Utang"},
+ "dash.paid":{en:"paid",es:"pagado",fr:"payé",ar:"مدفوع",pt:"pago",tl:"nabayaran"},
+ "dash.linked":{en:"Linked accounts",es:"Cuentas vinculadas",fr:"Comptes liés",ar:"الحسابات المرتبطة",pt:"Contas vinculadas",tl:"Mga naka-link na account"},
+ "dash.viewall":{en:"View all →",es:"Ver todo →",fr:"Tout voir →",ar:"عرض الكل ←",pt:"Ver tudo →",tl:"Tingnan lahat →"},
+ "dash.recent":{en:"Recent activity",es:"Actividad reciente",fr:"Activité récente",ar:"النشاط الأخير",pt:"Atividade recente",tl:"Kamakailang aktibidad"},
+ "dash.all":{en:"All →",es:"Todo →",fr:"Tout →",ar:"الكل ←",pt:"Tudo →",tl:"Lahat →"},
+ "dash.institutions":{en:"5 institutions linked · synced 2 min ago",es:"5 instituciones vinculadas · sincronizado hace 2 min",fr:"5 institutions liées · synchronisé il y a 2 min",ar:"5 مؤسسات مرتبطة · تمت المزامنة قبل دقيقتين",pt:"5 instituições vinculadas · sincronizado há 2 min",tl:"5 institusyon naka-link · na-sync 2 min ang nakaraan"},
+ "goal.retirement":{en:"Retirement goal",es:"Meta de jubilación",fr:"Objectif retraite",ar:"هدف التقاعد",pt:"Meta de aposentadoria",tl:"Layunin sa pagreretiro"},
+ "goal.emergency":{en:"Emergency fund",es:"Fondo de emergencia",fr:"Fonds d'urgence",ar:"صندوق الطوارئ",pt:"Fundo de emergência",tl:"Pondo para emergency"},
+ "goal.mortgage":{en:"Mortgage payoff",es:"Pago de hipoteca",fr:"Remboursement hypothécaire",ar:"سداد الرهن العقاري",pt:"Quitação da hipoteca",tl:"Pagbabayad ng mortgage"},
+ "goal.ontrack":{en:"On track",es:"En camino",fr:"En bonne voie",ar:"على المسار",pt:"No caminho",tl:"Nasa tamang landas"},
+ "goal.behind":{en:"Behind",es:"Atrasado",fr:"En retard",ar:"متأخر",pt:"Atrasado",tl:"Nahuhuli"},
+ "ins.title":{en:"Insights",es:"Resumen",fr:"Aperçus",ar:"رؤى",pt:"Resumo",tl:"Mga Insight"},
+ "ins.saved":{en:"Saved this month",es:"Ahorrado este mes",fr:"Épargné ce mois-ci",ar:"المدّخر هذا الشهر",pt:"Poupado este mês",tl:"Naipon ngayong buwan"},
+ "ins.streak":{en:"Savings streak",es:"Racha de ahorro",fr:"Série d'épargne",ar:"سلسلة الادخار",pt:"Sequência de poupança",tl:"Sunod-sunod na ipon"},
+ "ins.ontrack":{en:"Goals on track",es:"Metas en camino",fr:"Objectifs en bonne voie",ar:"أهداف على المسار",pt:"Metas no caminho",tl:"Mga layuning nasa landas"},
+ "ins.level":{en:"Level",es:"Nivel",fr:"Niveau",ar:"المستوى",pt:"Nível",tl:"Antas"},
+ "app.disclaimer":{en:"Demo with sample data. Bull Invest is not a bank and is not affiliated with or endorsed by any institution shown. Not financial advice.",es:"Demostración con datos de ejemplo. Bull Invest no es un banco y no está afiliado ni respaldado por ninguna institución mostrada. No es asesoramiento financiero.",fr:"Démo avec des données fictives. Bull Invest n'est pas une banque et n'est ni affilié ni approuvé par les institutions présentées. Ceci n'est pas un conseil financier.",ar:"عرض توضيحي ببيانات تجريبية. Bull Invest ليس بنكًا وليس تابعًا لأي مؤسسة معروضة أو معتمدًا منها. هذه ليست نصيحة مالية.",pt:"Demonstração com dados de exemplo. O Bull Invest não é um banco e não é afiliado nem endossado por nenhuma instituição mostrada. Não é aconselhamento financeiro.",tl:"Demo na may sample na datos. Ang Bull Invest ay hindi bangko at hindi kaugnay o endorsed ng anumang institusyong ipinapakita. Hindi ito payo sa pananalapi."},
+ "spend.title":{en:"Spending this month",es:"Gastos este mes",fr:"Dépenses ce mois-ci",ar:"الإنفاق هذا الشهر",pt:"Gastos este mês",tl:"Gastos ngayong buwan"},
+ "spend.budget":{en:"of budget",es:"del presupuesto",fr:"du budget",ar:"من الميزانية",pt:"do orçamento",tl:"ng badyet"},
+ "chip.all":{en:"All",es:"Todas",fr:"Toutes",ar:"الكل",pt:"Todas",tl:"Lahat"},
+ "chip.checking":{en:"Checking",es:"Corriente",fr:"Courant",ar:"جاري",pt:"Corrente",tl:"Checking"},
+ "chip.savings":{en:"Savings",es:"Ahorros",fr:"Épargne",ar:"التوفير",pt:"Poupança",tl:"Ipon"},
+ "chip.investing":{en:"Investing",es:"Inversión",fr:"Investissement",ar:"الاستثمار",pt:"Investimento",tl:"Pamumuhunan"},
+ "chip.retirement":{en:"Retirement",es:"Jubilación",fr:"Retraite",ar:"التقاعد",pt:"Aposentadoria",tl:"Pagreretiro"},
+ "chip.loans":{en:"Loans",es:"Préstamos",fr:"Prêts",ar:"القروض",pt:"Empréstimos",tl:"Mga Utang"},
+ "type.Checking":{en:"Checking",es:"Corriente",fr:"Courant",ar:"جاري",pt:"Corrente",tl:"Checking"},
+ "type.Savings":{en:"Savings",es:"Ahorros",fr:"Épargne",ar:"توفير",pt:"Poupança",tl:"Ipon"},
+ "type.Investing":{en:"Investing",es:"Inversión",fr:"Investissement",ar:"استثمار",pt:"Investimento",tl:"Pamumuhunan"},
+ "type.Retirement":{en:"Retirement",es:"Jubilación",fr:"Retraite",ar:"تقاعد",pt:"Aposentadoria",tl:"Pagreretiro"},
+ "type.Loan":{en:"Loan",es:"Préstamo",fr:"Prêt",ar:"قرض",pt:"Empréstimo",tl:"Utang"},
+ "th.merchant":{en:"Merchant",es:"Comercio",fr:"Commerçant",ar:"التاجر",pt:"Comerciante",tl:"Merchant"},
+ "th.account":{en:"Account",es:"Cuenta",fr:"Compte",ar:"الحساب",pt:"Conta",tl:"Account"},
+ "th.category":{en:"Category",es:"Categoría",fr:"Catégorie",ar:"الفئة",pt:"Categoria",tl:"Kategorya"},
+ "th.date":{en:"Date",es:"Fecha",fr:"Date",ar:"التاريخ",pt:"Data",tl:"Petsa"},
+ "th.amount":{en:"Amount",es:"Importe",fr:"Montant",ar:"المبلغ",pt:"Valor",tl:"Halaga"},
+ "tx.search":{en:"Search merchant or bank…",es:"Buscar comercio o banco…",fr:"Rechercher un commerçant ou une banque…",ar:"ابحث عن تاجر أو بنك…",pt:"Buscar comerciante ou banco…",tl:"Maghanap ng merchant o bangko…"},
+ "tx.title":{en:"All transactions · every bank, unified",es:"Todas las transacciones · todos los bancos, unificadas",fr:"Toutes les transactions · toutes les banques, unifiées",ar:"كل المعاملات · جميع البنوك موحّدة",pt:"Todas as transações · todos os bancos, unificadas",tl:"Lahat ng transaksyon · bawat bangko, pinag-isa"},
+ "cat.where":{en:"Where your money lives",es:"Dónde está tu dinero",fr:"Où se trouve votre argent",ar:"أين تتوزّع أموالك",pt:"Onde está o seu dinheiro",tl:"Saan nakalagay ang pera mo"},
+ "cat.networth12":{en:"12-month net worth ($000s)",es:"Patrimonio neto a 12 meses (miles $)",fr:"Valeur nette sur 12 mois (milliers $)",ar:"صافي الثروة خلال 12 شهرًا (بالآلاف $)",pt:"Patrimônio em 12 meses (milhares $)",tl:"Net worth sa 12 buwan ($000s)"},
+ "cat.goalscats":{en:"Goals & categories",es:"Metas y categorías",fr:"Objectifs et catégories",ar:"الأهداف والفئات",pt:"Metas e categorias",tl:"Mga layunin at kategorya"},
+ "cat.savings":{en:"Savings",es:"Ahorros",fr:"Épargne",ar:"التوفير",pt:"Poupança",tl:"Ipon"},
+ "cat.investing":{en:"Investing",es:"Inversión",fr:"Investissement",ar:"الاستثمار",pt:"Investimento",tl:"Pamumuhunan"},
+ "cat.loans":{en:"Loans / Mortgage",es:"Préstamos / Hipoteca",fr:"Prêts / Hypothèque",ar:"القروض / الرهن",pt:"Empréstimos / Hipoteca",tl:"Mga Utang / Mortgage"},
+ "calc.intro":{en:"Run the numbers yourself. Every result uses the same finance formulas a bank or accountant uses — and you can write your own calculation in the custom tab.",es:"Haz los cálculos tú mismo. Cada resultado usa las mismas fórmulas que usa un banco o contador — y puedes escribir tu propio cálculo en la pestaña personalizada.",fr:"Faites les calculs vous-même. Chaque résultat utilise les mêmes formules qu'une banque ou un comptable — et vous pouvez écrire votre propre calcul dans l'onglet personnalisé.",ar:"احسب بنفسك. كل نتيجة تستخدم نفس الصيغ التي يستخدمها البنك أو المحاسب — ويمكنك كتابة حسابك الخاص في التبويب المخصّص.",pt:"Faça as contas você mesmo. Cada resultado usa as mesmas fórmulas que um banco ou contador usa — e você pode escrever seu próprio cálculo na aba personalizada.",tl:"Ikaw mismo ang magkuwenta. Bawat resulta ay gumagamit ng parehong pormula na ginagamit ng bangko o accountant — at puwede kang magsulat ng sarili mong kuwenta sa custom tab."},
+ "tab.invest":{en:"Investment Growth",es:"Crecimiento de inversión",fr:"Croissance de l'investissement",ar:"نمو الاستثمار",pt:"Crescimento do investimento",tl:"Paglago ng Puhunan"},
+ "tab.loan":{en:"Loan / Mortgage",es:"Préstamo / Hipoteca",fr:"Prêt / Hypothèque",ar:"القرض / الرهن",pt:"Empréstimo / Hipoteca",tl:"Loan / Mortgage"},
+ "tab.retire":{en:"Retirement (401k)",es:"Jubilación (401k)",fr:"Retraite (401k)",ar:"التقاعد (401k)",pt:"Aposentadoria (401k)",tl:"Pagreretiro (401k)"},
+ "tab.goal":{en:"Savings Goal",es:"Meta de ahorro",fr:"Objectif d'épargne",ar:"هدف الادخار",pt:"Meta de poupança",tl:"Layunin sa Ipon"},
+ "tab.custom":{en:"Custom · code it",es:"Personalizado · codifícalo",fr:"Personnalisé · codez-le",ar:"مخصّص · اكتب الكود",pt:"Personalizado · codifique",tl:"Custom · i-code mo"},
+ "f.start":{en:"Starting amount ($)",es:"Monto inicial ($)",fr:"Montant initial ($)",ar:"المبلغ الأولي ($)",pt:"Valor inicial ($)",tl:"Panimulang halaga ($)"},
+ "f.monthly":{en:"Monthly contribution ($)",es:"Aportación mensual ($)",fr:"Versement mensuel ($)",ar:"المساهمة الشهرية ($)",pt:"Contribuição mensal ($)",tl:"Buwanang kontribusyon ($)"},
+ "f.return":{en:"Annual return (%)",es:"Rendimiento anual (%)",fr:"Rendement annuel (%)",ar:"العائد السنوي (%)",pt:"Retorno anual (%)",tl:"Taunang return (%)"},
+ "f.years":{en:"Years",es:"Años",fr:"Années",ar:"السنوات",pt:"Anos",tl:"Mga taon"},
+ "f.loanamt":{en:"Loan / home price financed ($)",es:"Préstamo / precio financiado ($)",fr:"Prêt / prix financé ($)",ar:"القرض / السعر المموّل ($)",pt:"Empréstimo / valor financiado ($)",tl:"Loan / pinondohang presyo ($)"},
+ "f.rate":{en:"Interest rate (% APR)",es:"Tasa de interés (% APR)",fr:"Taux d'intérêt (% APR)",ar:"معدل الفائدة (% APR)",pt:"Taxa de juros (% APR)",tl:"Interest rate (% APR)"},
+ "f.term":{en:"Term (years)",es:"Plazo (años)",fr:"Durée (années)",ar:"المدة (سنوات)",pt:"Prazo (anos)",tl:"Termino (taon)"},
+ "f.curbal":{en:"Current 401(k)/IRA balance ($)",es:"Saldo actual 401(k)/IRA ($)",fr:"Solde actuel 401(k)/IRA ($)",ar:"رصيد 401(k)/IRA الحالي ($)",pt:"Saldo atual 401(k)/IRA ($)",tl:"Kasalukuyang 401(k)/IRA balance ($)"},
+ "f.yourmonthly":{en:"Your monthly ($)",es:"Tu aporte mensual ($)",fr:"Votre versement mensuel ($)",ar:"مساهمتك الشهرية ($)",pt:"Sua mensal ($)",tl:"Buwanan mo ($)"},
+ "f.match":{en:"Employer match ($/mo)",es:"Aporte del empleador ($/mes)",fr:"Contribution employeur ($/mois)",ar:"مساهمة صاحب العمل ($/شهر)",pt:"Contribuição do empregador ($/mês)",tl:"Tugma ng employer ($/buwan)"},
+ "f.curage":{en:"Current age",es:"Edad actual",fr:"Âge actuel",ar:"العمر الحالي",pt:"Idade atual",tl:"Kasalukuyang edad"},
+ "f.retat":{en:"Retire at",es:"Jubilarse a los",fr:"Retraite à",ar:"التقاعد عند",pt:"Aposentar aos",tl:"Magretiro sa"},
+ "f.goaltarget":{en:"Savings goal ($)",es:"Meta de ahorro ($)",fr:"Objectif d'épargne ($)",ar:"هدف الادخار ($)",pt:"Meta de poupança ($)",tl:"Layunin sa ipon ($)"},
+ "f.saved":{en:"Already saved ($)",es:"Ya ahorrado ($)",fr:"Déjà épargné ($)",ar:"المدّخر بالفعل ($)",pt:"Já poupado ($)",tl:"Naipon na ($)"},
+ "f.apy":{en:"APY (%)",es:"APY (%)",fr:"APY (%)",ar:"APY (%)",pt:"APY (%)",tl:"APY (%)"},
+ "f.yearsreach":{en:"Years to reach it",es:"Años para alcanzarlo",fr:"Années pour l'atteindre",ar:"سنوات لتحقيقه",pt:"Anos para alcançar",tl:"Taon para maabot"},
+ "r.projected":{en:"Projected value in {y} years",es:"Valor proyectado en {y} años",fr:"Valeur projetée dans {y} ans",ar:"القيمة المتوقعة خلال {y} سنة",pt:"Valor projetado em {y} anos",tl:"Inaasahang halaga sa {y} taon"},
+ "r.monthly":{en:"Monthly payment",es:"Pago mensual",fr:"Mensualité",ar:"القسط الشهري",pt:"Pagamento mensal",tl:"Buwanang bayad"},
+ "r.balage":{en:"Balance at age {ret}",es:"Saldo a los {ret} años",fr:"Solde à {ret} ans",ar:"الرصيد عند سن {ret}",pt:"Saldo aos {ret} anos",tl:"Balanse sa edad {ret}"},
+ "r.savemonth":{en:"Save this much per month",es:"Ahorra esto al mes",fr:"Épargnez ce montant par mois",ar:"ادّخر هذا المبلغ شهريًا",pt:"Poupe isto por mês",tl:"Ipunin ito kada buwan"},
+ "r.result":{en:"Result",es:"Resultado",fr:"Résultat",ar:"النتيجة",pt:"Resultado",tl:"Resulta"},
+ "rr.contribute":{en:"You contribute",es:"Tú aportas",fr:"Vous versez",ar:"أنت تساهم",pt:"Você contribui",tl:"Nag-aambag ka"},
+ "rr.growth":{en:"Investment growth",es:"Crecimiento de la inversión",fr:"Croissance de l'investissement",ar:"نمو الاستثمار",pt:"Crescimento do investimento",tl:"Paglago ng puhunan"},
+ "rr.multiple":{en:"Growth multiple",es:"Múltiplo de crecimiento",fr:"Multiple de croissance",ar:"مضاعف النمو",pt:"Múltiplo de crescimento",tl:"Multiple ng paglago"},
+ "rr.loanamt":{en:"Loan amount",es:"Monto del préstamo",fr:"Montant du prêt",ar:"مبلغ القرض",pt:"Valor do empréstimo",tl:"Halaga ng loan"},
+ "rr.totalpay":{en:"Total of payments",es:"Total de pagos",fr:"Total des paiements",ar:"إجمالي المدفوعات",pt:"Total de pagamentos",tl:"Kabuuang bayad"},
+ "rr.totalint":{en:"Total interest",es:"Interés total",fr:"Intérêts totaux",ar:"إجمالي الفائدة",pt:"Juros totais",tl:"Kabuuang interes"},
+ "rr.intpct":{en:"Interest as % of loan",es:"Interés como % del préstamo",fr:"Intérêts en % du prêt",ar:"الفائدة كنسبة من القرض",pt:"Juros como % do empréstimo",tl:"Interes bilang % ng loan"},
+ "rr.yearsinv":{en:"Years invested",es:"Años invertidos",fr:"Années investies",ar:"سنوات الاستثمار",pt:"Anos investidos",tl:"Taon na namuhunan"},
+ "rr.totalcontrib":{en:"Total contributed",es:"Total aportado",fr:"Total versé",ar:"إجمالي المساهمات",pt:"Total contribuído",tl:"Kabuuang naiambag"},
+ "rr.monthincome":{en:"Est. monthly income (4% rule)",es:"Ingreso mensual est. (regla del 4%)",fr:"Revenu mensuel est. (règle des 4%)",ar:"الدخل الشهري التقديري (قاعدة 4%)",pt:"Renda mensal est. (regra dos 4%)",tl:"Tinatayang buwanang kita (4% rule)"},
+ "rr.target":{en:"Target",es:"Meta",fr:"Objectif",ar:"الهدف",pt:"Meta",tl:"Target"},
+ "rr.totaldeposit":{en:"Total you'll deposit",es:"Total que depositarás",fr:"Total que vous déposerez",ar:"إجمالي ما ستودعه",pt:"Total que você vai depositar",tl:"Kabuuang ide-deposito mo"},
+ "rr.intearned":{en:"Interest earned",es:"Interés ganado",fr:"Intérêts gagnés",ar:"الفائدة المكتسبة",pt:"Juros ganhos",tl:"Kinitang interes"},
+ "rr.youreset":{en:"$0 — you're set!",es:"$0 — ¡ya estás!",fr:"0 $ — c'est bon !",ar:"$0 — أنت جاهز!",pt:"$0 — está tudo certo!",tl:"$0 — handa ka na!"},
+ "cx.label":{en:"Write your own calculation (JavaScript expression)",es:"Escribe tu propio cálculo (expresión JavaScript)",fr:"Écrivez votre propre calcul (expression JavaScript)",ar:"اكتب حسابك الخاص (تعبير JavaScript)",pt:"Escreva seu próprio cálculo (expressão JavaScript)",tl:"Isulat ang sarili mong kuwenta (JavaScript expression)"},
+ "cx.run":{en:"Run",es:"Ejecutar",fr:"Exécuter",ar:"تشغيل",pt:"Executar",tl:"Patakbuhin"},
+ "cx.local":{en:"Runs locally in your browser.",es:"Se ejecuta localmente en tu navegador.",fr:"S'exécute localement dans votre navigateur.",ar:"يعمل محليًا في متصفحك.",pt:"Executa localmente no seu navegador.",tl:"Tumatakbo nang lokal sa browser mo."},
+ "atm.card":{en:"Bull Invest Visa® Platinum Debit",es:"Bull Invest Visa® Platinum Débito",fr:"Bull Invest Visa® Platinum Débit",ar:"بطاقة Bull Invest Visa® Platinum للخصم",pt:"Bull Invest Visa® Platinum Débito",tl:"Bull Invest Visa® Platinum Debit"},
+ "atm.headline":{en:"$0 ATM fees. Anywhere on Earth.",es:"Sin comisiones de cajero. En cualquier lugar del mundo.",fr:"Aucuns frais de DAB. Partout dans le monde.",ar:"بدون رسوم صراف آلي. في أي مكان على الأرض.",pt:"Zero taxas de caixa. Em qualquer lugar do mundo.",tl:"$0 ATM fees. Kahit saan sa mundo."},
+ "atm.body":{en:"Use any ATM, any country. Every surcharge is automatically rebated within days — no claim forms, no limits, no foreign-transaction fees. Modeled on the unlimited reimbursement Vanta & Summit already offer today.",es:"Usa cualquier cajero, en cualquier país. Cada recargo se reembolsa automáticamente en días — sin formularios, sin límites, sin comisiones por transacciones en el extranjero. Inspirado en el reembolso ilimitado que ya ofrecen Vanta y Summit.",fr:"Utilisez n'importe quel DAB, dans n'importe quel pays. Chaque frais est remboursé automatiquement en quelques jours — sans formulaire, sans limite, sans frais à l'étranger. Inspiré du remboursement illimité que proposent déjà Vanta et Summit.",ar:"استخدم أي صراف آلي في أي بلد. تُعاد كل رسوم تلقائيًا خلال أيام — بدون نماذج، بدون حدود، بدون رسوم معاملات أجنبية. مستوحى من الاسترداد غير المحدود الذي تقدّمه Vanta وSummit اليوم.",pt:"Use qualquer caixa, em qualquer país. Cada taxa é reembolsada automaticamente em dias — sem formulários, sem limites, sem taxas no exterior. Inspirado no reembolso ilimitado que Vanta e Summit já oferecem.",tl:"Gamitin ang anumang ATM, kahit anong bansa. Bawat surcharge ay awtomatikong isasauli sa loob ng ilang araw — walang form, walang limit, walang foreign fees. Batay sa unlimited reimbursement ng Vanta at Summit."},
+ "af1.t":{en:"Unlimited worldwide rebates",es:"Reembolsos ilimitados en todo el mundo",fr:"Remboursements illimités dans le monde",ar:"استرداد غير محدود حول العالم",pt:"Reembolsos ilimitados no mundo todo",tl:"Walang-limitasyong rebate sa buong mundo"},
+ "af1.d":{en:"100% of ATM surcharges refunded automatically, home and abroad.",es:"100% de los recargos reembolsados automáticamente, en casa y en el extranjero.",fr:"100% des frais de DAB remboursés automatiquement, ici et à l'étranger.",ar:"استرداد 100% من رسوم الصراف تلقائيًا، محليًا ودوليًا.",pt:"100% das taxas de caixa reembolsadas automaticamente, no país e no exterior.",tl:"100% ng ATM surcharge awtomatikong isasauli, lokal man o abroad."},
+ "af2.t":{en:"No claims, automatic",es:"Sin reclamos, automático",fr:"Sans réclamation, automatique",ar:"بدون مطالبات، تلقائي",pt:"Sem solicitações, automático",tl:"Walang claim, awtomatiko"},
+ "af2.d":{en:"Refunds appear in a few days — nothing to file, nothing to call.",es:"Los reembolsos aparecen en días — sin trámites ni llamadas.",fr:"Les remboursements arrivent en quelques jours — rien à remplir, rien à appeler.",ar:"تظهر المبالغ المستردة خلال أيام — لا نماذج ولا اتصالات.",pt:"Os reembolsos aparecem em poucos dias — sem formulários nem ligações.",tl:"Lalabas ang refund sa ilang araw — walang ipa-file, walang itatawag."},
+ "af3.t":{en:"$0 foreign-transaction fees",es:"Sin comisiones por transacciones en el extranjero",fr:"Aucuns frais de transaction à l'étranger",ar:"بدون رسوم معاملات أجنبية",pt:"Sem taxas de transações no exterior",tl:"$0 foreign-transaction fees"},
+ "af3.d":{en:"Best available exchange rate on every withdrawal and purchase.",es:"El mejor tipo de cambio en cada retiro y compra.",fr:"Le meilleur taux de change pour chaque retrait et achat.",ar:"أفضل سعر صرف متاح في كل سحب وشراء.",pt:"Melhor taxa de câmbio em cada saque e compra.",tl:"Pinakamagandang exchange rate sa bawat withdrawal at bili."},
+ "atm.rebated":{en:"ATM fees rebated this year",es:"Comisiones de cajero reembolsadas este año",fr:"Frais de DAB remboursés cette année",ar:"رسوم الصراف المستردة هذا العام",pt:"Taxas de caixa reembolsadas este ano",tl:"Na-rebate na ATM fees ngayong taon"},
+ "atm.across":{en:"Across 22 withdrawals in 4 countries",es:"En 22 retiros en 4 países",fr:"Sur 22 retraits dans 4 pays",ar:"عبر 22 عملية سحب في 4 دول",pt:"Em 22 saques em 4 países",tl:"Sa 22 withdrawal sa 4 bansa"},
+ "sec.title":{en:"Security-first backend",es:"Backend centrado en la seguridad",fr:"Backend axé sur la sécurité",ar:"بنية خلفية تركّز على الأمان",pt:"Backend focado em segurança",tl:"Backend na nauuna ang seguridad"},
+ "sec.body":{en:"Bull Invest never stores your bank passwords. Accounts link through tokenized, read-only connections (OAuth open-banking), so the app shows balances and transactions but can never move money without your explicit approval.",es:"Bull Invest nunca guarda tus contraseñas bancarias. Las cuentas se conectan mediante enlaces tokenizados de solo lectura (open-banking OAuth), por lo que la app muestra saldos y transacciones pero nunca puede mover dinero sin tu aprobación explícita.",fr:"Bull Invest ne stocke jamais vos mots de passe bancaires. Les comptes se connectent via des liens tokenisés en lecture seule (open-banking OAuth), donc l'app affiche les soldes et transactions mais ne peut jamais déplacer d'argent sans votre accord explicite.",ar:"لا يخزّن Bull Invest كلمات مرور بنكك أبدًا. ترتبط الحسابات عبر اتصالات مرمّزة للقراءة فقط (OAuth)، لذا يعرض التطبيق الأرصدة والمعاملات لكن لا يمكنه تحريك الأموال دون موافقتك الصريحة.",pt:"O Bull Invest nunca guarda suas senhas bancárias. As contas se conectam por links tokenizados somente leitura (open-banking OAuth), então o app mostra saldos e transações mas nunca move dinheiro sem sua aprovação explícita.",tl:"Hindi kailanman iniimbak ng Bull Invest ang mga password ng bangko mo. Naka-link ang mga account sa tokenized, read-only na koneksyon (OAuth open-banking), kaya ipinapakita ng app ang balanse at transaksyon pero hindi makakagalaw ng pera nang wala kang pahintulot."},
+ "s1.t":{en:"AES-256 · TLS 1.3",es:"AES-256 · TLS 1.3",fr:"AES-256 · TLS 1.3",ar:"AES-256 · TLS 1.3",pt:"AES-256 · TLS 1.3",tl:"AES-256 · TLS 1.3"},
+ "s1.d":{en:"Bank-grade encryption at rest and in transit.",es:"Cifrado de nivel bancario en reposo y en tránsito.",fr:"Chiffrement bancaire au repos et en transit.",ar:"تشفير بمستوى البنوك أثناء التخزين والنقل.",pt:"Criptografia nível bancário em repouso e em trânsito.",tl:"Bank-grade encryption sa storage at transit."},
+ "s2.t":{en:"Tokenized credentials",es:"Credenciales tokenizadas",fr:"Identifiants tokenisés",ar:"بيانات اعتماد مرمّزة",pt:"Credenciais tokenizadas",tl:"Tokenized credentials"},
+ "s2.d":{en:"Logins become revocable tokens — no password to steal.",es:"Los inicios de sesión se convierten en tokens revocables — sin contraseña que robar.",fr:"Les connexions deviennent des jetons révocables — aucun mot de passe à voler.",ar:"تتحوّل بيانات الدخول إلى رموز قابلة للإلغاء — لا كلمة مرور تُسرق.",pt:"Os logins viram tokens revogáveis — sem senha para roubar.",tl:"Ang login ay nagiging revocable token — walang password na manakaw."},
+ "s3.t":{en:"Read-only by default",es:"Solo lectura por defecto",fr:"Lecture seule par défaut",ar:"للقراءة فقط افتراضيًا",pt:"Somente leitura por padrão",tl:"Read-only bilang default"},
+ "s3.d":{en:"Linked accounts are view-only; transfers need step-up auth.",es:"Las cuentas vinculadas son de solo lectura; las transferencias requieren autenticación adicional.",fr:"Les comptes liés sont en lecture seule ; les virements nécessitent une authentification renforcée.",ar:"الحسابات المرتبطة للعرض فقط؛ التحويلات تتطلب مصادقة إضافية.",pt:"Contas vinculadas são somente leitura; transferências exigem autenticação extra.",tl:"View-only ang naka-link na account; kailangan ng step-up auth sa transfer."},
+ "s4.t":{en:"SOC 2 · ISO 27001 · PCI-DSS",es:"SOC 2 · ISO 27001 · PCI-DSS",fr:"SOC 2 · ISO 27001 · PCI-DSS",ar:"SOC 2 · ISO 27001 · PCI-DSS",pt:"SOC 2 · ISO 27001 · PCI-DSS",tl:"SOC 2 · ISO 27001 · PCI-DSS"},
+ "s4.d":{en:"Independent audits and annual penetration testing.",es:"Auditorías independientes y pruebas de penetración anuales.",fr:"Audits indépendants et tests d'intrusion annuels.",ar:"تدقيقات مستقلة واختبارات اختراق سنوية.",pt:"Auditorias independentes e testes de invasão anuais.",tl:"Independent audits at taunang penetration testing."},
+ "s5.t":{en:"Biometric + 2FA",es:"Biometría + 2FA",fr:"Biométrie + 2FA",ar:"القياسات الحيوية + 2FA",pt:"Biometria + 2FA",tl:"Biometric + 2FA"},
+ "s5.d":{en:"Face/fingerprint unlock plus device-bound two-factor.",es:"Desbloqueo facial/huella más doble factor vinculado al dispositivo.",fr:"Déverrouillage par visage/empreinte plus double facteur lié à l'appareil.",ar:"فتح بالوجه/البصمة مع مصادقة ثنائية مرتبطة بالجهاز.",pt:"Desbloqueio por rosto/digital mais duplo fator vinculado ao dispositivo.",tl:"Face/fingerprint unlock plus device-bound two-factor."},
+ "s6.t":{en:"Real-time alerts",es:"Alertas en tiempo real",fr:"Alertes en temps réel",ar:"تنبيهات فورية",pt:"Alertas em tempo real",tl:"Real-time na alerto"},
+ "s6.d":{en:"Instant notice on new devices, large transactions, or logins.",es:"Aviso instantáneo de nuevos dispositivos, transacciones grandes o inicios de sesión.",fr:"Notification instantanée pour nouveaux appareils, grosses transactions ou connexions.",ar:"إشعار فوري عند الأجهزة الجديدة أو المعاملات الكبيرة أو عمليات الدخول.",pt:"Aviso instantâneo sobre novos dispositivos, transações grandes ou logins.",tl:"Agarang abiso sa bagong device, malaking transaksyon, o login."},
+ "learn.title":{en:"Learn — managing & growing your money",es:"Aprende — administra y haz crecer tu dinero",fr:"Apprendre — gérer et faire fructifier votre argent",ar:"تعلّم — إدارة أموالك وتنميتها",pt:"Aprenda — gerir e multiplicar seu dinheiro",tl:"Matuto — pamahalaan at palaguin ang pera mo"},
+ "learn.note":{en:"Tap any video to watch it on YouTube. In the real app these would be Bull Invest's own in-app tutorials.",es:"Toca cualquier video para verlo en YouTube. En la app real serían tutoriales propios de Bull Invest.",fr:"Touchez une vidéo pour la regarder sur YouTube. Dans la vraie app, ce seraient les tutoriels de Bull Invest.",ar:"انقر أي فيديو لمشاهدته على YouTube. في التطبيق الحقيقي ستكون هذه دروس Bull Invest الخاصة.",pt:"Toque em qualquer vídeo para assistir no YouTube. No app real, seriam tutoriais do próprio Bull Invest.",tl:"I-tap ang video para panoorin sa YouTube. Sa totoong app, ito ay sariling tutorial ng Bull Invest."},
+ "lm.title":{en:"Link a new bank",es:"Vincular un nuevo banco",fr:"Lier une nouvelle banque",ar:"ربط بنك جديد",pt:"Vincular um novo banco",tl:"Mag-link ng bagong bangko"},
+ "lm.body":{en:"Connect securely via tokenized, read-only access. Bull Invest never sees your password.",es:"Conéctate de forma segura con acceso tokenizado de solo lectura. Bull Invest nunca ve tu contraseña.",fr:"Connectez-vous en toute sécurité via un accès tokenisé en lecture seule. Bull Invest ne voit jamais votre mot de passe.",ar:"اتصل بأمان عبر وصول مرمّز للقراءة فقط. لا يرى Bull Invest كلمة مرورك أبدًا.",pt:"Conecte com segurança via acesso tokenizado somente leitura. O Bull Invest nunca vê sua senha.",tl:"Kumonekta nang ligtas sa tokenized, read-only access. Hindi nakikita ng Bull Invest ang password mo."},
+ "lm.search":{en:"Search 12,000+ institutions…",es:"Buscar entre más de 12.000 instituciones…",fr:"Rechercher parmi plus de 12 000 institutions…",ar:"ابحث في أكثر من 12,000 مؤسسة…",pt:"Buscar em mais de 12.000 instituições…",tl:"Maghanap sa 12,000+ institusyon…"}
+};
+function tr(k){const e=T[k];return e?(e[LANG]||e.en):k;}
+
+/* ===================== DATA ===================== */
+const banks={
+  chase:{n:"Northwind Bank",c:"#117ACA",ab:"NW"},
+  wells:{n:"Crestline Bank",c:"#C9202F",ab:"CB"},
+  schwab:{n:"Vanta Securities",c:"#0a7ec2",ab:"VA"},
+  fidelity:{n:"Summit",c:"#2f7d33",ab:"SU"},
+  bull:{n:"Bull Cash",c:"#0ca15a",ab:"🐂"}
+};
+const accounts=[
+  {bank:"chase",name:"Northwind Total Checking",type:"Checking",bal:8420,sub:"•••• 4821"},
+  {bank:"bull",name:"Bull Cash (0 ATM fees)",type:"Checking",bal:5310,sub:"•••• 9007 · debit"},
+  {bank:"wells",name:"Crestline Bank Way2Save",type:"Savings",bal:16450,sub:"•••• 3390 · 4.30% APY"},
+  {bank:"chase",name:"Northwind High-Yield Savings",type:"Savings",bal:25730,sub:"•••• 1182 · 4.25% APY"},
+  {bank:"schwab",name:"Vanta Brokerage",type:"Investing",bal:198340,sub:"•••• 7741 · +12.4% YTD"},
+  {bank:"fidelity",name:"Summit 401(k)",type:"Retirement",bal:256800,sub:"Employer plan · VTSAX"},
+  {bank:"schwab",name:"Vanta Roth IRA",type:"Retirement",bal:74800,sub:"•••• 5520"},
+  {bank:"wells",name:"Crestline Bank Mortgage",type:"Loan",bal:-268000,sub:"5.10% · 19 yrs left"},
+  {bank:"chase",name:"Northwind Auto Loan",type:"Loan",bal:-16200,sub:"4.40% · 3 yrs left"}
+];
+const catColor={Groceries:"#0ca15a",Cash:"#5b6675",Refund:"#0ca15a",Income:"#0ca15a",Transfer:"#39424e",Loan:"#c92a2a",Retirement:"#0a7ec2",Dining:"#5b6675",Utilities:"#8a93a0"};
+const txns=[
+  {n:"Whole Foods Market",b:"Northwind Checking",t:"Groceries",a:-128.44,d:"Jun 16"},
+  {n:"ATM Withdrawal — Tokyo",b:"Bull Cash",t:"Cash",a:-200.00,d:"Jun 16"},
+  {n:"ATM fee rebate",b:"Bull Cash",t:"Refund",a:6.50,d:"Jun 16"},
+  {n:"Payroll — Acme Corp",b:"Northwind Checking",t:"Income",a:4250.00,d:"Jun 15"},
+  {n:"Auto-invest → Vanta",b:"Vanta Brokerage",t:"Transfer",a:-1000.00,d:"Jun 15"},
+  {n:"Mortgage payment",b:"Crestline Bank",t:"Loan",a:-1960.00,d:"Jun 14"},
+  {n:"401(k) contribution",b:"Summit 401k",t:"Retirement",a:-650.00,d:"Jun 14"},
+  {n:"Starbucks",b:"Bull Cash",t:"Dining",a:-6.85,d:"Jun 13"},
+  {n:"PG&E Electric",b:"Northwind Checking",t:"Utilities",a:-142.30,d:"Jun 12"},
+  {n:"Transfer to HY Savings",b:"Northwind → Crestline",t:"Transfer",a:-1100.00,d:"Jun 11"}
+];
+const videos=[
+  {id:"Rm6UdfRs3gw",t:"How compound interest works",d:"Khan Academy — how your money grows on itself over time.",src:"Khan Academy"},
+  {id:"jTW777ENc3c",t:"Compound interest in one minute",d:"A quick, plain explanation of why compounding is so powerful.",src:"YouTube"},
+  {id:"BhTTeIDZtKY",t:"401(k) explained simply for beginners",d:"How one of the most powerful retirement accounts actually works.",src:"YouTube"},
+  {id:"5E1mRSxfo0g",t:"401(k) explained in 100 seconds",d:"The fast version of how a 401(k) builds your retirement.",src:"YouTube"},
+  {id:"mIOEMLAc-bo",t:"Index funds & ETFs explained (2026)",d:"How index funds work and how to start investing step by step.",src:"YouTube"},
+  {id:"06yM7IABbK0",t:"How to invest in index funds",d:"A beginner's walkthrough of putting your first money to work.",src:"YouTube"}
+];
+
+/* ===================== FINANCE ENGINE (verified) ===================== */
+const round2=x=>Math.round(x*100)/100;
+const fmt=v=>(v<0?"−$":"$")+Math.abs(v).toLocaleString(undefined,{maximumFractionDigits:0});
+const fmt2=v=>(v<0?"−$":"$")+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+function FV(pv,pmt,annualPct,years){const r=(annualPct/100)/12,n=years*12;
+  return round2(pv*Math.pow(1+r,n)+(r===0?pmt*n:pmt*((Math.pow(1+r,n)-1)/r)));}
+function PMT(principal,annualPct,years){const i=(annualPct/100)/12,n=years*12;
+  return round2(i===0?principal/n:principal*i/(1-Math.pow(1+i,-n)));}
+function GOAL(target,pv,annualPct,years){const r=(annualPct/100)/12,n=years*12;
+  const f=r===0?n:((Math.pow(1+r,n)-1)/r);return round2((target-pv*Math.pow(1+r,n))/f);}
+
+/* ===================== RENDER ===================== */
+const num=id=>parseFloat(document.getElementById(id).value)||0;
+function bankLogo(b){const x=banks[b];return `<div class="bank-logo" aria-hidden="true" style="background:${x.c}">${x.ab}</div>`}
+function renderAccts(target,filter){
+  document.getElementById(target).innerHTML=accounts.filter(a=>!filter||filter==="all"||a.type===filter).map(a=>`
+   <button class="acct">${bankLogo(a.bank)}
+     <span class="info"><b>${a.name}</b><small>${banks[a.bank].n} · ${a.sub}</small></span>
+     <span class="bal num" style="color:${a.bal<0?'var(--down)':'var(--ink)'}">${fmt(a.bal)}<small>${tr('type.'+a.type)}</small></span></button>`).join("");
+}
+function txBadge(t){const c=catColor[t.t]||"#5b6675";return `<span class="tbadge" aria-hidden="true" style="background:${c}1f;color:${c}">${t.n[0]}</span>`}
+function renderTxMini(){document.getElementById("txMini").innerHTML=txns.slice(0,6).map(t=>`
+  <tr><td>${txBadge(t)}${t.n}<br><small class="muted" style="margin-inline-start:39px;display:inline-block;margin-top:-2px">${t.b}</small></td>
+  <td class="num" style="text-align:end;color:${t.a<0?'var(--ink)':'var(--up)'}">${fmt2(t.a)}</td></tr>`).join("");}
+function renderTxTable(){
+  const q=(document.getElementById("txSearch").value||"").toLowerCase();
+  document.getElementById("txFull").innerHTML=txns.filter(t=>(t.n+t.b).toLowerCase().includes(q)).map(t=>`
+   <tr><td>${txBadge(t)}${t.n}</td><td class="muted">${t.b}</td>
+   <td><span class="tag">${t.t}</span></td><td class="muted">${t.d}</td>
+   <td class="num" style="text-align:end;font-weight:700;color:${t.a<0?'var(--ink)':'var(--up)'}">${fmt2(t.a)}</td></tr>`).join("");
+}
+function renderVids(){document.getElementById("vidGrid").innerHTML=videos.map((v,i)=>`
+  <button class="vid" onclick="openVid(${i})" aria-label="Play video: ${v.t}">
+    <span class="thumb" style="background:#0c1116 url('https://img.youtube.com/vi/${v.id}/hqdefault.jpg') center/cover">
+      <span class="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>
+      <span class="src">${v.src}</span></span>
+    <span class="meta"><b>${v.t}</b><small>${v.d}</small></span></button>`).join("");}
+function renderSpending(){
+  const el=document.getElementById("spendList"); if(!el)return;
+  const budgets={Groceries:600,Dining:250,Utilities:250,Cash:400};
+  const order=["Groceries","Dining","Utilities","Cash"];
+  const spent={};
+  txns.forEach(t=>{ if(budgets[t.t]&&t.a<0) spent[t.t]=(spent[t.t]||0)+(-t.a); });
+  el.innerHTML=order.map(c=>{
+    const s=spent[c]||0, b=budgets[c], pct=Math.min(100,Math.round(s/b*100)), over=s>b;
+    return `<div class="spend-row">
+      <div class="top"><span>${c}</span>
+        <span class="num">${fmt2(s)} <span class="muted">/ ${fmt(b)} ${tr('spend.budget')}</span></span></div>
+      <div class="progress"><i style="width:${pct}%;background:${over?'var(--down)':'var(--accent)'}"></i></div>
+    </div>`;
+  }).join("");
+}
+
+/* ===================== CALCULATORS ===================== */
+function row(label,val){return `<div class="res-row"><span>${label}</span><b>${val}</b></div>`}
+function calcInvest(){const pv=num("i_pv"),pmt=num("i_pmt"),r=num("i_rate"),y=num("i_yrs");
+  const fv=FV(pv,pmt,r,y),contrib=round2(pv+pmt*y*12),growth=round2(fv-contrib);
+  document.getElementById("r-invest").innerHTML=`<div class="label">${tr('r.projected').replace('{y}',y)}</div>
+   <div class="big num">${fmt(fv)}</div>${row(tr('rr.contribute'),fmt(contrib))}${row(tr('rr.growth'),fmt(growth))}
+   ${row(tr('rr.multiple'),(fv/Math.max(contrib,1)).toFixed(2)+"×")}`;}
+function calcLoan(){const p=num("l_amt"),r=num("l_rate"),y=num("l_yrs");
+  const m=PMT(p,r,y),total=round2(m*y*12),int=round2(total-p);
+  document.getElementById("r-loan").innerHTML=`<div class="label">${tr('r.monthly')}</div>
+   <div class="big num">${fmt2(m)}</div>${row(tr('rr.loanamt'),fmt(p))}${row(tr('rr.totalpay'),fmt(total))}
+   ${row(tr('rr.totalint'),fmt(int))}${row(tr('rr.intpct'),(int/Math.max(p,1)*100).toFixed(0)+"%")}`;}
+function calcRetire(){const bal=num("rt_bal"),emp=num("rt_emp"),match=num("rt_match"),a=num("rt_age"),ret=num("rt_ret"),r=num("rt_rate");
+  const yrs=Math.max(ret-a,0),fv=FV(bal,emp+match,r,yrs),contrib=round2(bal+(emp+match)*yrs*12);
+  document.getElementById("r-retire").innerHTML=`<div class="label">${tr('r.balage').replace('{ret}',ret)}</div>
+   <div class="big num">${fmt(fv)}</div>${row(tr('rr.yearsinv'),yrs)}${row(tr('rr.totalcontrib'),fmt(contrib))}
+   ${row(tr('rr.growth'),fmt(round2(fv-contrib)))}${row(tr('rr.monthincome'),fmt(round2(fv*0.04/12)))}`;}
+function calcGoal(){const t=num("g_target"),pv=num("g_pv"),r=num("g_rate"),y=num("g_yrs");
+  const need=GOAL(t,pv,r,y),deposits=round2(need*y*12);
+  document.getElementById("r-goal").innerHTML=`<div class="label">${tr('r.savemonth')}</div>
+   <div class="big num">${need>0?fmt2(need):tr('rr.youreset')}</div>${row(tr('rr.target'),fmt(t))}${row(tr('rr.contribute'),fmt(pv))}
+   ${row(tr('rr.totaldeposit'),fmt(Math.max(deposits,0)))}${row(tr('rr.intearned'),fmt(Math.max(round2(t-pv-deposits),0)))}`;}
+function calcCustom(){
+  const code=document.getElementById("cx_code").value;
+  const out=document.getElementById("cx_out"),err=document.getElementById("cx_err");
+  try{
+    const f=new Function("FV","PMT","GOAL","Math","\"use strict\";return ("+code+"\n);");
+    const v=f(FV,PMT,GOAL,Math);
+    out.textContent=(typeof v==="number"&&isFinite(v))?(Math.abs(v)>=1000?fmt2(v):(Math.round(v*10000)/10000)):String(v);
+    err.textContent="";
+  }catch(e){out.textContent="—";err.textContent="⚠ "+e.message;}
+}
+function refreshCalcs(){calcInvest();calcLoan();calcRetire();calcGoal();calcCustom();}
+
+/* ===================== ONBOARDING / GREETING ===================== */
+let USER="there";
+function greetWord(){const h=new Date().getHours();return h<12?tr('greet.morning'):h<18?tr('greet.afternoon'):tr('greet.evening');}
+function dateLine(){return new Date().toLocaleDateString(LOCALE[LANG]||"en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});}
+function createAccount(){
+  const n=(document.getElementById("ob-name").value||"").trim();
+  USER=n||"there";
+  document.getElementById("avatarInit").textContent=(USER==="there"?"B":USER[0].toUpperCase());
+  document.getElementById("footName").textContent=tr('shell.signedinas')+" "+USER;
+  document.getElementById("onboard").style.display="none";
+  document.getElementById("app").classList.add("show");
+  go("dash");
+  setTimeout(buildCharts,60);
+}
+document.getElementById("ob-name").addEventListener("keydown",e=>{if(e.key==="Enter")createAccount();});
+function signOut(){
+  document.getElementById("app").classList.remove("show");
+  document.getElementById("onboard").style.display="grid";
+  document.getElementById("ob-name").value="";document.getElementById("ob-email").value="";
+  document.getElementById("ob-name").focus();
+}
+
+/* ===================== LANGUAGE / A11Y ===================== */
+const pageT={accounts:["nav.accounts","sub.accounts"],transactions:["nav.transactions","sub.transactions"],
+  categories:["nav.goals","sub.goals"],calculators:["nav.calculators","sub.calculators"],
+  atm:["nav.atm","sub.atm"],security:["nav.security","sub.security"],learn:["nav.learn","sub.learn"]};
+function setLang(l){
+  LANG=l;
+  document.documentElement.lang=l;
+  document.documentElement.dir=(l==="ar")?"rtl":"ltr";
+  document.querySelectorAll("[data-i18n]").forEach(e=>{const k=e.getAttribute("data-i18n");if(T[k])e.textContent=tr(k);});
+  document.querySelectorAll("[data-i18n-ph]").forEach(e=>{const k=e.getAttribute("data-i18n-ph");if(T[k])e.setAttribute("placeholder",tr(k));});
+  const a=document.getElementById("ob-lang"),b=document.getElementById("top-lang");if(a)a.value=l;if(b)b.value=l;
+  if(USER!=="there")document.getElementById("footName").textContent=tr('shell.signedinas')+" "+USER;
+  const af=document.querySelector('#acctChips .chip[aria-pressed="true"]');
+  renderAccts("acctList");renderAccts("acctFull",af?af.dataset.f:"all");renderTxTable();renderSpending();refreshCalcs();
+  const cur=document.querySelector('.nav button[aria-current="page"]');if(cur)setTitles(cur.dataset.page);
+  savePrefs();
+}
+function setTitles(p){
+  if(p==="dash"){document.getElementById("pageTitle").textContent=greetWord()+", "+USER;
+    document.getElementById("pageSub").textContent=tr('sub.dash')+" · "+dateLine();}
+  else{document.getElementById("pageTitle").textContent=tr(pageT[p][0]);
+    document.getElementById("pageSub").textContent=tr(pageT[p][1]);}
+}
+
+/* settings panel */
+function toggleSettings(){const p=document.getElementById("settingsPanel"),btn=document.getElementById("gearBtn");
+  const open=p.classList.toggle("show");btn.setAttribute("aria-expanded",open);}
+function toggleBig(){const on=document.documentElement.classList.toggle("bigtext");
+  document.getElementById("tgBig").setAttribute("aria-pressed",on);savePrefs();}
+function toggleContrast(){const on=document.body.classList.toggle("contrast");
+  document.getElementById("tgContrast").setAttribute("aria-pressed",on);savePrefs();}
+function toggleDark(){const on=document.body.classList.toggle("dark");
+  document.getElementById("tgDark").setAttribute("aria-pressed",on);
+  if(document.getElementById("app").classList.contains("show"))buildCharts();savePrefs();}
+function savePrefs(){try{localStorage.setItem("bi_prefs",JSON.stringify({
+  lang:LANG,dark:document.body.classList.contains("dark"),
+  big:document.documentElement.classList.contains("bigtext"),
+  contrast:document.body.classList.contains("contrast")}));}catch(e){}}
+function loadPrefs(){let p={};try{p=JSON.parse(localStorage.getItem("bi_prefs")||"{}");}catch(e){}
+  if(p.dark){document.body.classList.add("dark");document.getElementById("tgDark").setAttribute("aria-pressed","true");}
+  if(p.big){document.documentElement.classList.add("bigtext");document.getElementById("tgBig").setAttribute("aria-pressed","true");}
+  if(p.contrast){document.body.classList.add("contrast");document.getElementById("tgContrast").setAttribute("aria-pressed","true");}
+  setLang(p.lang||"en");}
+document.addEventListener("click",e=>{const p=document.getElementById("settingsPanel");
+  if(p.classList.contains("show")&&!p.contains(e.target)&&e.target.id!=="gearBtn"){p.classList.remove("show");document.getElementById("gearBtn").setAttribute("aria-expanded",false);}});
+
+/* ===================== NAV / MODALS ===================== */
+function toggleMenu(){const s=document.querySelector(".side"),sc=document.getElementById("scrim"),b=document.querySelector(".menu-btn");
+  const open=s.classList.toggle("open");sc.classList.toggle("show",open);if(b)b.setAttribute("aria-expanded",open);}
+function closeMenu(){document.querySelector(".side").classList.remove("open");document.getElementById("scrim").classList.remove("show");const b=document.querySelector(".menu-btn");if(b)b.setAttribute("aria-expanded",false);}
+function go(p){document.querySelectorAll(".page").forEach(x=>x.classList.remove("show"));
+  const sec=document.getElementById(p);sec.classList.add("show");closeMenu();
+  document.querySelectorAll(".nav button").forEach(b=>{const on=b.dataset.page===p;b.setAttribute("aria-current",on?"page":"false");});
+  setTitles(p);window.scrollTo({top:0,behavior:"smooth"});}
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>go(b.dataset.page));
+document.querySelectorAll("#acctChips .chip").forEach(c=>c.onclick=()=>{
+  document.querySelectorAll("#acctChips .chip").forEach(x=>x.setAttribute("aria-pressed","false"));
+  c.setAttribute("aria-pressed","true");renderAccts("acctFull",c.dataset.f);});
+document.querySelectorAll("#calcTabs .calc-tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll("#calcTabs .calc-tab").forEach(x=>x.setAttribute("aria-selected","false"));t.setAttribute("aria-selected","true");
+  document.querySelectorAll(".calcpane").forEach(p=>p.classList.remove("show"));
+  document.getElementById("c-"+t.dataset.c).classList.add("show");});
+function openLink(){document.getElementById("linkOpts").innerHTML=Object.keys(banks).map(k=>`<button class="bank-opt" onclick="closeLink()">${bankLogo(k)}<b>${banks[k].n}</b></button>`).join("")+`<button class="bank-opt" onclick="closeLink()"><span class="bank-logo" aria-hidden="true" style="background:#8a93a0">+</span><b>${tr('lm.search')}</b></button>`;document.getElementById("linkModal").classList.add("show");}
+const closeLink=()=>document.getElementById("linkModal").classList.remove("show");
+function openVid(i){window.open("https://www.youtube.com/watch?v="+videos[i].id,"_blank","noopener");}
+document.querySelectorAll(".modal-bg").forEach(m=>m.onclick=e=>{if(e.target===m)m.classList.remove("show")});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){document.getElementById("linkModal").classList.remove("show");closeMenu();}});
+
+/* ===================== CHARTS ===================== */
+let netC,catC,trendC;
+function buildCharts(){
+  const dark=document.body.classList.contains("dark");
+  const tick=dark?"#94a1b2":"#8a93a0", grid=dark?"#243140":"#eef1f4", cardc=dark?"#141d29":"#ffffff";
+  [netC,catC,trendC].forEach(c=>{if(c)c.destroy();});
+  const g=document.getElementById("netChart").getContext("2d");
+  const grad=g.createLinearGradient(0,0,0,200);grad.addColorStop(0,"rgba(27,180,106,.22)");grad.addColorStop(1,"rgba(27,180,106,0)");
+  netC=new Chart(g,{type:"line",data:{labels:["J","F","M","A","M","J","J","A","S","O","N","D"],
+    datasets:[{data:[262,268,275,281,288,292,283,289,294,297,300,302],borderColor:"#0ca15a",backgroundColor:grad,fill:true,tension:.4,pointRadius:0,borderWidth:2.5}]},
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
+  catC=new Chart(document.getElementById("catChart"),{type:"doughnut",
+    data:{labels:["Retirement","Investing","Savings","Cash"],datasets:[{data:[331600,198340,42180,13730],
+      backgroundColor:["#0ca15a","#2dd4bf","#64748b","#cbd5e1"],borderColor:cardc,borderWidth:3}]},
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:"bottom",labels:{color:tick,padding:13,font:{size:12}}}},cutout:"64%"}});
+  trendC=new Chart(document.getElementById("trendChart"),{type:"bar",
+    data:{labels:["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun"],
+      datasets:[{data:[262,268,275,281,288,292,283,289,294,297,300,302],backgroundColor:"#0ca15a",borderRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:tick},grid:{display:false}},
+      y:{ticks:{color:tick,callback:v=>"$"+v+"k"},grid:{color:grid}}}}});
+}
+
+/* ===================== INIT ===================== */
+(function(){const o=document.getElementById("ob-lang"),t=document.getElementById("top-lang");
+  LANGS.forEach(([code,name])=>{o.add(new Option(name,code));t.add(new Option(name,code));});
+  o.value="en";t.value="en";o.onchange=()=>setLang(o.value);t.onchange=()=>setLang(t.value);})();
+renderAccts("acctList");renderAccts("acctFull","all");renderTxMini();renderTxTable();renderVids();renderSpending();
+refreshCalcs();loadPrefs();
+document.getElementById("ob-name").focus();
+/* Demo: actively remove any old service worker + caches so updates ALWAYS load (no stale builds) */
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});
+}
+if(window.caches&&caches.keys){caches.keys().then(ks=>ks.forEach(k=>caches.delete(k))).catch(()=>{});}
+</script>
+</body>
+</html>
